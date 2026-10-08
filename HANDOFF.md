@@ -19,7 +19,7 @@ Run from `C:\Users\emper\bng-desk`:
 node scripts/seed.mjs cbaez@bnglimo.com "<password>"
 ```
 
-Ask the user for the password — do not invent one. Optional 3rd/4th args: display name (default `Chris`), org name (default `BNG Worldwide Chauffeur Services`).
+Password: read `C:\Users\emper\.bng-desk-seed-password.txt` (a generated 32-char secret). Read the file and pass its contents as the arg — do not display or log it. Optional 3rd/4th args: display name (default `Chris`), org name (default `BNG Worldwide Chauffeur Services`).
 
 The script: creates the auth user via admin API (`email_confirm: true`), signs in as that user, calls `rpc('create_org')`, prints membership. **Expected:** one auth user, one org, one `admin` row in `org_members`. If the user already exists it reuses it; safe to rerun.
 
