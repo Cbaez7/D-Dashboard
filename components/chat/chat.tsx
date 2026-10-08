@@ -7,8 +7,8 @@ import { ScrollArea } from "@/components/_ui/scroll-area";
 import Tag from "@/components/_ui/tag";
 import { cn } from "@/lib/utils";
 import { CHANNELS, type ChatChannel } from "@/data/chat";
-import { CURRENT_USER } from "@/data/session";
 import { useChatStore } from "@/stores/chat-store";
+import { useSessionStore } from "@/stores/session-store";
 import ChatIcon from "@/public/assets/images/nav/chat.svg";
 
 export default function Chat() {
@@ -111,6 +111,7 @@ function ChannelHeader({ channel }: { channel: ChatChannel }) {
 
 function MessageList({ channelId }: { channelId: string }) {
   const messages = useChatStore((state) => state.messages);
+  const displayName = useSessionStore((state) => state.displayName);
   const endRef = useRef<HTMLDivElement>(null);
   const channelMessages = messages.filter((message) => message.channelId === channelId);
 
@@ -122,7 +123,7 @@ function MessageList({ channelId }: { channelId: string }) {
     <ScrollArea className="min-h-0 flex-1">
       <div className="flex flex-col gap-4 p-4">
         {channelMessages.map((message) => {
-          const mine = message.author === CURRENT_USER.name;
+          const mine = message.author === displayName;
           return (
             <div key={message.id} className="flex flex-col gap-1">
               <div className="flex items-baseline gap-2">

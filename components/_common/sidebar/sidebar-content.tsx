@@ -7,7 +7,7 @@ import { SURFACE_GROUPS, surfaceById } from "./nav";
 import { useAppStore } from "@/stores/app-store";
 import { useChatStore } from "@/stores/chat-store";
 import { CHANNELS } from "@/data/chat";
-import { CURRENT_USER } from "@/data/session";
+import { useSessionStore } from "@/stores/session-store";
 import Logo from "@/public/assets/images/_common/logo.svg";
 import UserPlusIcon from "@/public/assets/images/_common/user-plus.svg";
 import HelpIcon from "@/public/assets/images/_common/help.svg";
@@ -19,6 +19,7 @@ export default function SidebarContent() {
   const unreadCounts = useAppStore((state) => state.unreadCounts);
   const messages = useChatStore((state) => state.messages);
   const lastRead = useChatStore((state) => state.lastRead);
+  const displayName = useSessionStore((state) => state.displayName);
   const chatUnread = CHANNELS.reduce(
     (total, channel) =>
       total +
@@ -26,7 +27,7 @@ export default function SidebarContent() {
         (message) =>
           message.channelId === channel.id &&
           message.createdAt > (lastRead[channel.id] ?? "") &&
-          message.author !== CURRENT_USER.name,
+          message.author !== displayName,
       ).length,
     0,
   );

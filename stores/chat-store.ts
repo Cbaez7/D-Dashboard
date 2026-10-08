@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { CHANNELS, MESSAGES, type ChatMessage } from "@/data/chat";
-import { CURRENT_USER } from "@/data/session";
+import { useSessionStore } from "@/stores/session-store";
 
 type ChatState = {
   activeChannelId: string;
@@ -30,7 +30,7 @@ export const useChatStore = create<ChatState>()(
             {
               id: `m-${Date.now()}`,
               channelId,
-              author: CURRENT_USER.name,
+              author: useSessionStore.getState().displayName,
               body,
               createdAt: new Date().toISOString(),
             },
@@ -46,11 +46,12 @@ export const useChatStore = create<ChatState>()(
       unreadCount: (channelId) => {
         const { messages, lastRead } = get();
         const since = lastRead[channelId] ?? "";
+        const displayName = useSessionStore.getState().displayName;
         return messages.filter(
           (message) =>
             message.channelId === channelId &&
             message.createdAt > since &&
-            message.author !== CURRENT_USER.name,
+            message.author !== displayName,
         ).length;
       },
     }),

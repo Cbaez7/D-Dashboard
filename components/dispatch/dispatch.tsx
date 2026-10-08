@@ -18,12 +18,12 @@ import {
   TableRow,
 } from "@/components/_ui/table";
 import ClockPanel from "@/components/clock/clock-panel";
-import { CURRENT_USER } from "@/data/session";
 import type { Task } from "@/data/tasks";
 import { useAppStore, type SurfaceId } from "@/stores/app-store";
 import { useChatStore } from "@/stores/chat-store";
 import { useGuideStore } from "@/stores/guide-store";
 import { useTasksStore } from "@/stores/tasks-store";
+import { useSessionStore } from "@/stores/session-store";
 import { CHANNELS } from "@/data/chat";
 
 const PRIORITY_TONE: Record<Task["priority"], "neutral" | "blue" | "orange" | "red"> = {
@@ -62,13 +62,14 @@ function AttentionStrip() {
   const tasks = useTasksStore((state) => state.tasks);
   const messages = useChatStore((state) => state.messages);
   const lastRead = useChatStore((state) => state.lastRead);
+  const displayName = useSessionStore((state) => state.displayName);
 
   const pendingSops = pages.filter(
     (page) => page.requiresAck && acknowledgments[page.id] !== page.version,
   ).length;
   const openTasks = tasks.filter(
     (task) =>
-      task.assignee === CURRENT_USER.name &&
+      task.assignee === displayName &&
       (task.status === "open" || task.status === "in_progress"),
   ).length;
   const unreadChats = CHANNELS.reduce(
@@ -78,7 +79,7 @@ function AttentionStrip() {
         (message) =>
           message.channelId === channel.id &&
           message.createdAt > (lastRead[channel.id] ?? "") &&
-          message.author !== CURRENT_USER.name,
+          message.author !== displayName,
       ).length,
     0,
   );
@@ -127,9 +128,10 @@ function AttentionStrip() {
 function MyTasks() {
   const tasks = useTasksStore((state) => state.tasks);
   const setStatus = useTasksStore((state) => state.setStatus);
+  const displayName = useSessionStore((state) => state.displayName);
   const mine = tasks.filter(
     (task) =>
-      task.assignee === CURRENT_USER.name &&
+      task.assignee === displayName &&
       task.status !== "done" &&
       task.status !== "closed",
   );

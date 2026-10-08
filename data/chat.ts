@@ -15,7 +15,7 @@ export type ChatMessage = {
 };
 
 export const TEAM_MEMBERS = [
-  "Chris Baez",
+  "Chris",
   "Maria Santos",
   "Devon Cole",
   "Priya Nair",
@@ -69,7 +69,7 @@ export const MESSAGES: ChatMessage[] = [
   {
     id: "m3",
     channelId: "ch-dispatch",
-    author: "Chris Baez",
+    author: "Chris",
     body: "Copy. Flagging VIP note on the Ellison account — quiet ride preference.",
     createdAt: "2026-10-08T13:06:00Z",
   },

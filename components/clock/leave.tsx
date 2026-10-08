@@ -30,11 +30,11 @@ import {
   TableRow,
 } from "@/components/_ui/table";
 import {
-  LEAVE_ALLOWANCE_DAYS,
   formatLeaveDates,
   type LeaveRequest,
 } from "@/data/clock";
 import { useClockStore } from "@/stores/clock-store";
+import { useSessionStore } from "@/stores/session-store";
 import PlusIcon from "@/public/assets/images/_common/plus.svg";
 
 const STATUS_TONE: Record<LeaveRequest["status"], "amber" | "green" | "red" | "neutral"> = {
@@ -54,6 +54,7 @@ function dayCount(startsOn: string, endsOn: string) {
 export default function Leave() {
   const leaveRequests = useClockStore((state) => state.leaveRequests);
   const requestLeave = useClockStore((state) => state.requestLeave);
+  const allowanceDays = useSessionStore((state) => state.leaveAllowanceDays);
   const [open, setOpen] = useState(false);
   const [startsOn, setStartsOn] = useState("");
   const [endsOn, setEndsOn] = useState("");
@@ -66,7 +67,7 @@ export default function Leave() {
   const pending = leaveRequests
     .filter((request) => request.status === "pending")
     .reduce((total, request) => total + request.days, 0);
-  const remaining = LEAVE_ALLOWANCE_DAYS - used;
+  const remaining = allowanceDays - used;
 
   const days = dayCount(startsOn, endsOn);
   const canSubmit = days > 0;
@@ -84,7 +85,7 @@ export default function Leave() {
   return (
     <div className="flex flex-col gap-4">
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatCard label="Annual allowance" value={LEAVE_ALLOWANCE_DAYS} />
+        <StatCard label="Annual allowance" value={allowanceDays} />
         <StatCard label="Used" value={used} />
         <StatCard label="Pending" value={pending} />
         <StatCard label="Remaining" value={remaining} />

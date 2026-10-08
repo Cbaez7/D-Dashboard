@@ -3,8 +3,8 @@
 import Button from "@/components/_ui/button";
 import Notifications from "@/components/_common/notifications/notifications";
 import { surfaceById } from "@/components/_common/sidebar/nav";
-import { CURRENT_USER } from "@/data/session";
 import { useAppStore } from "@/stores/app-store";
+import { useSessionStore } from "@/stores/session-store";
 import { useClockStore } from "@/stores/clock-store";
 import MenuIcon from "@/public/assets/images/_common/menu.svg";
 import ActiveDot from "@/public/assets/images/_common/active-dot.svg";
@@ -16,6 +16,8 @@ export default function AppHeader() {
   const setCommandOpen = useAppStore((state) => state.setCommandOpen);
   const setProfileOpen = useAppStore((state) => state.setProfileOpen);
   const checkedIn = useClockStore((state) => state.checkedInAt !== null);
+  const displayName = useSessionStore((state) => state.displayName);
+  const initials = useSessionStore((state) => state.initials);
   const surface = surfaceById(activeSurface);
 
   return (
@@ -55,16 +57,16 @@ export default function AppHeader() {
             variant="secondary"
             size="none"
             className="caption-style h-[30px] gap-1.5 py-[5px] pr-[7px] pl-[5px] font-normal"
-            aria-label={`Open profile for ${CURRENT_USER.name}`}
+            aria-label={`Open profile for ${displayName}`}
             onClick={() => setProfileOpen(true)}
           >
             <span
               aria-hidden
               className="bg-muted text-soft flex size-5 items-center justify-center rounded-full text-[9px] font-semibold outline-1 -outline-offset-1 outline-white/10"
             >
-              {CURRENT_USER.initials}
+              {initials}
             </span>
-            <span className="hidden sm:inline">{CURRENT_USER.name}</span>
+            <span className="hidden sm:inline">{displayName}</span>
           </Button>
         </div>
       </div>

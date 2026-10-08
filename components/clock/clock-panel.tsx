@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Button from "@/components/_ui/button";
 import Tag from "@/components/_ui/tag";
-import { TODAYS_SHIFT, formatDuration } from "@/data/clock";
+import { formatDuration } from "@/data/clock";
 import { useClockStore } from "@/stores/clock-store";
 import LogInIcon from "@/public/assets/images/_common/log-in.svg";
 import LogOutIcon from "@/public/assets/images/_common/log-out.svg";
@@ -11,6 +11,7 @@ import CalendarIcon from "@/public/assets/images/_common/calendar.svg";
 
 export default function ClockPanel() {
   const checkedInAt = useClockStore((state) => state.checkedInAt);
+  const shift = useClockStore((state) => state.shift);
   const checkIn = useClockStore((state) => state.checkIn);
   const checkOut = useClockStore((state) => state.checkOut);
   const [now, setNow] = useState(() => Date.now());
@@ -29,19 +30,25 @@ export default function ClockPanel() {
         <div className="mb-3 flex items-center gap-2">
           <CalendarIcon aria-hidden className="text-subtle size-3.5" />
           <h3>Today&apos;s shift</h3>
-          <Tag tone="green" size="sm" className="ml-auto">
-            Active
+          <Tag tone={shift ? "green" : "neutral"} size="sm" className="ml-auto">
+            {shift ? "Active" : "None"}
           </Tag>
         </div>
-        <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5">
-          <dt className="caption-style text-subtle">Time</dt>
-          <dd className="text-[14px] leading-none">
-            {TODAYS_SHIFT.startTime} – {TODAYS_SHIFT.endTime}
-            <span className="text-subtle"> ({TODAYS_SHIFT.tz})</span>
-          </dd>
-          <dt className="caption-style text-subtle">Service</dt>
-          <dd className="text-[14px] leading-none">{TODAYS_SHIFT.serviceType}</dd>
-        </dl>
+        {shift ? (
+          <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5">
+            <dt className="caption-style text-subtle">Time</dt>
+            <dd className="text-[14px] leading-none">
+              {shift.startTime} – {shift.endTime}
+              <span className="text-subtle"> ({shift.tz})</span>
+            </dd>
+            <dt className="caption-style text-subtle">Service</dt>
+            <dd className="text-[14px] leading-none">{shift.serviceType}</dd>
+          </dl>
+        ) : (
+          <p className="caption-style text-soft">
+            No shift scheduled for today.
+          </p>
+        )}
       </div>
 
       <div className="border-border bg-card rounded-xl border p-4">

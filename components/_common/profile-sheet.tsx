@@ -8,15 +8,18 @@ import {
   SheetTitle,
 } from "@/components/_ui/sheet";
 import Tag from "@/components/_ui/tag";
-import { CURRENT_USER } from "@/data/session";
 import { signOut } from "@/app/login/actions";
 import { useAppStore } from "@/stores/app-store";
+import { useSessionStore } from "@/stores/session-store";
 import LogOutIcon from "@/public/assets/images/_common/log-out.svg";
 
 export default function ProfileSheet() {
   const profileOpen = useAppStore((state) => state.profileOpen);
   const setProfileOpen = useAppStore((state) => state.setProfileOpen);
   const role = useAppStore((state) => state.role);
+  const displayName = useSessionStore((state) => state.displayName);
+  const initials = useSessionStore((state) => state.initials);
+  const email = useSessionStore((state) => state.email);
 
   return (
     <Sheet open={profileOpen} onOpenChange={setProfileOpen}>
@@ -31,14 +34,14 @@ export default function ProfileSheet() {
               aria-hidden
               className="bg-muted text-soft flex size-11 items-center justify-center rounded-full text-[15px] font-semibold outline-1 -outline-offset-1 outline-white/10"
             >
-              {CURRENT_USER.initials}
+              {initials}
             </span>
             <div className="flex min-w-0 flex-col gap-1">
               <span className="lead-style truncate font-medium">
-                {CURRENT_USER.name}
+                {displayName}
               </span>
               <span className="caption-style text-subtle truncate">
-                {CURRENT_USER.email}
+                {email}
               </span>
             </div>
           </div>

@@ -10,14 +10,15 @@ import {
   TableRow,
 } from "@/components/_ui/table";
 import {
-  MY_TZ,
   formatDuration,
   formatEntryRange,
 } from "@/data/clock";
 import { useClockStore } from "@/stores/clock-store";
+import { useSessionStore } from "@/stores/session-store";
 
 export default function Timesheet() {
   const entries = useClockStore((state) => state.entries);
+  const myTz = useSessionStore((state) => state.myTz);
 
   return (
     <div className="border-border bg-card overflow-hidden rounded-xl border">
@@ -49,7 +50,7 @@ export default function Timesheet() {
                 </span>
               </TableCell>
               <TableCell className="text-soft">
-                {formatEntryRange(entry, MY_TZ)}
+                {formatEntryRange(entry, myTz)}
               </TableCell>
               <TableCell className="text-soft">
                 {formatDuration(entry.clockInAt, entry.clockOutAt)}

@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { TASKS, type Task } from "@/data/tasks";
-import { CURRENT_USER } from "@/data/session";
+import { useSessionStore } from "@/stores/session-store";
 
 type TasksState = {
   tasks: Task[];
@@ -20,7 +20,7 @@ export const useTasksStore = create<TasksState>()(
               ...task,
               id: `t-${Date.now()}`,
               ref: Math.max(0, ...state.tasks.map((item) => item.ref)) + 1,
-              createdBy: CURRENT_USER.name,
+              createdBy: useSessionStore.getState().displayName,
               createdAt: new Date().toISOString(),
             },
             ...state.tasks,
