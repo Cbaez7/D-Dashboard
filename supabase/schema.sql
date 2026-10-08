@@ -66,6 +66,27 @@ grant execute on function public.is_org_member(uuid) to authenticated;
 grant execute on function public.is_org_admin(uuid) to authenticated;
 grant execute on function public.current_org_id() to authenticated;
 
+create or replace function public.create_org(p_name text)
+returns uuid
+language plpgsql security definer
+set search_path = ''
+as $$
+declare
+  v_org_id uuid;
+begin
+  if (select auth.uid()) is null then
+    raise exception 'not authenticated';
+  end if;
+  insert into public.orgs (name) values (p_name) returning id into v_org_id;
+  insert into public.org_members (org_id, user_id, role)
+  values (v_org_id, (select auth.uid()), 'admin');
+  return v_org_id;
+end;
+$$;
+
+revoke all on function public.create_org(text) from public;
+grant execute on function public.create_org(text) to authenticated;
+
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql security definer
@@ -573,7 +594,7 @@ create policy org_members_select on org_members for select to authenticated
   using (public.is_org_member(org_id));
 
 create policy org_members_admin_insert on org_members for insert to authenticated
-  with check (public.is_org_admin(org_id) or user_id = (select auth.uid()));
+  with check (public.is_org_admin(org_id));
 
 create policy org_members_admin_update on org_members for update to authenticated
   using (public.is_org_admin(org_id))
