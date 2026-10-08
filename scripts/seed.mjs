@@ -51,11 +51,17 @@ const userClient = createClient(url, anonKey, { auth: { persistSession: false } 
 const { error: signInErr } = await userClient.auth.signInWithPassword({ email, password });
 if (signInErr) throw signInErr;
 
-const { data: orgId, error: orgErr } = await userClient.rpc("create_org", { p_name: orgName });
-if (orgErr) {
-  if (/duplicate|unique|already/i.test(orgErr.message)) console.log("org membership already exists");
-  else throw orgErr;
+const { data: existing, error: existErr } = await userClient
+  .from("org_members")
+  .select("org_id, role")
+  .eq("user_id", userId);
+if (existErr) throw existErr;
+
+if (existing?.length) {
+  console.log("membership already exists, skipping create_org:", existing);
 } else {
+  const { data: orgId, error: orgErr } = await userClient.rpc("create_org", { p_name: orgName });
+  if (orgErr) throw orgErr;
   console.log("created org:", orgId);
 }
 
