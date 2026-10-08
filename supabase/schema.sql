@@ -85,6 +85,7 @@ end;
 $$;
 
 revoke all on function public.create_org(text) from public;
+revoke execute on function public.create_org(text) from anon;
 grant execute on function public.create_org(text) to authenticated;
 
 create or replace function public.handle_new_user()
