@@ -5,6 +5,7 @@ import Notifications from "@/components/_common/notifications/notifications";
 import { surfaceById } from "@/components/_common/sidebar/nav";
 import { CURRENT_USER } from "@/data/session";
 import { useAppStore } from "@/stores/app-store";
+import { useClockStore } from "@/stores/clock-store";
 import MenuIcon from "@/public/assets/images/_common/menu.svg";
 import ActiveDot from "@/public/assets/images/_common/active-dot.svg";
 import SearchIcon from "@/public/assets/images/_common/search.svg";
@@ -14,6 +15,7 @@ export default function AppHeader() {
   const setSidebarOpen = useAppStore((state) => state.setSidebarOpen);
   const setCommandOpen = useAppStore((state) => state.setCommandOpen);
   const setProfileOpen = useAppStore((state) => state.setProfileOpen);
+  const checkedIn = useClockStore((state) => state.checkedInAt !== null);
   const surface = surfaceById(activeSurface);
 
   return (
@@ -30,10 +32,12 @@ export default function AppHeader() {
             <MenuIcon aria-hidden className="size-3.5" />
           </Button>
           <h1 className="truncate">{surface?.label ?? "BNG Desk"}</h1>
-          <span className="caption-style bg-muted inline-flex shrink-0 items-center gap-0.5 rounded-full border border-[#363636] py-[3px] pr-[5px] pl-[3px]">
-            <ActiveDot aria-hidden className="size-3" />
-            On shift
-          </span>
+          {checkedIn && (
+            <span className="caption-style bg-muted inline-flex shrink-0 items-center gap-0.5 rounded-full border border-[#363636] py-[3px] pr-[5px] pl-[3px]">
+              <ActiveDot aria-hidden className="size-3" />
+              On shift
+            </span>
+          )}
         </div>
 
         <div className="flex shrink-0 items-center gap-2">

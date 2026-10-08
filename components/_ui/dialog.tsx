@@ -5,7 +5,7 @@ import { Dialog as DialogPrimitive } from "radix-ui";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/_ui/scroll-area";
 import Button from "@/components/_ui/button";
-import XIcon from "@/public/assets/images/companies/detail/x.svg";
+import XIcon from "@/public/assets/images/_common/x.svg";
 
 function Dialog(props: ComponentProps<typeof DialogPrimitive.Root>) {
   return <DialogPrimitive.Root data-slot="dialog" {...props} />;

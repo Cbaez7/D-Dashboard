@@ -3,12 +3,18 @@ create extension if not exists pgcrypto;
 create table if not exists orgs (
   id uuid primary key default gen_random_uuid(),
   name text not null,
+  ops_timezone text not null default 'America/Los_Angeles',
   created_at timestamptz not null default now()
 );
 
 create table if not exists profiles (
   id uuid primary key references auth.users on delete cascade,
   display_name text,
+  first_name text,
+  last_name text,
+  phone text,
+  timezone text not null default 'America/New_York',
+  leave_allowance_days int not null default 20,
   avatar_url text,
   created_at timestamptz not null default now()
 );
@@ -130,38 +136,69 @@ create table if not exists messages (
   edited_at timestamptz
 );
 
+create sequence if not exists task_ref_seq start 1;
+
 create table if not exists tasks (
   id uuid primary key default gen_random_uuid(),
   org_id uuid not null references orgs on delete cascade,
+  ref bigint not null default nextval('task_ref_seq'),
+  kind text not null default 'task' check (kind in ('task', 'ticket')),
   title text not null,
   notes text,
+  priority text not null default 'normal' check (priority in ('low', 'normal', 'high', 'urgent')),
   assignee_id uuid references auth.users on delete set null,
   created_by uuid references auth.users on delete set null,
-  status text not null default 'open' check (status in ('open', 'in_progress', 'done')),
+  status text not null default 'open' check (status in ('open', 'in_progress', 'done', 'closed')),
   due_at timestamptz,
   trip_id text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
 
+create table if not exists shifts (
+  id uuid primary key default gen_random_uuid(),
+  org_id uuid not null references orgs on delete cascade,
+  user_id uuid not null references auth.users on delete cascade,
+  days_of_week smallint[] not null default '{}',
+  start_time time not null,
+  end_time time not null,
+  tz text not null default 'America/Los_Angeles',
+  effective_from date not null,
+  effective_to date,
+  version int not null default 1,
+  status text not null default 'active' check (status in ('active', 'cancelled')),
+  service_type text not null default 'standard',
+  acknowledged_at timestamptz,
+  created_by uuid references auth.users on delete set null,
+  created_at timestamptz not null default now()
+);
+
 create table if not exists clock_entries (
   id uuid primary key default gen_random_uuid(),
   org_id uuid not null references orgs on delete cascade,
   user_id uuid not null references auth.users on delete cascade,
+  shift_id uuid references shifts on delete set null,
   clock_in_at timestamptz not null default now(),
   clock_out_at timestamptz,
+  tz text,
+  location text,
   edited_by uuid references auth.users on delete set null,
   note text,
   created_at timestamptz not null default now()
 );
 
-create table if not exists shifts (
+create table if not exists leave_requests (
   id uuid primary key default gen_random_uuid(),
   org_id uuid not null references orgs on delete cascade,
   user_id uuid not null references auth.users on delete cascade,
-  starts_at timestamptz not null,
-  ends_at timestamptz not null,
-  note text,
+  starts_on date not null,
+  ends_on date not null,
+  days int not null,
+  type text not null default 'annual',
+  reason text,
+  status text not null default 'pending' check (status in ('pending', 'approved', 'denied', 'cancelled')),
+  reviewed_by uuid references auth.users on delete set null,
+  reviewed_at timestamptz,
   created_at timestamptz not null default now()
 );
 
@@ -172,6 +209,8 @@ create table if not exists sop_pages (
   slug text not null,
   category text,
   body text not null default '',
+  version int not null default 1,
+  requires_ack boolean not null default true,
   position int not null default 0,
   published boolean not null default true,
   created_by uuid references auth.users on delete set null,
@@ -183,8 +222,75 @@ create table if not exists sop_pages (
 create table if not exists sop_revisions (
   id bigint generated always as identity primary key,
   page_id uuid not null references sop_pages on delete cascade,
+  version int not null,
   body text not null,
   edited_by uuid references auth.users on delete set null,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists sop_acknowledgments (
+  page_id uuid not null references sop_pages on delete cascade,
+  user_id uuid not null references auth.users on delete cascade,
+  version int not null,
+  acknowledged_at timestamptz not null default now(),
+  primary key (page_id, user_id, version)
+);
+
+create table if not exists documents (
+  id uuid primary key default gen_random_uuid(),
+  org_id uuid not null references orgs on delete cascade,
+  title text not null,
+  kind text not null default 'document' check (kind in ('document', 'contract')),
+  file_path text not null,
+  version int not null default 1,
+  requires_ack boolean not null default true,
+  uploaded_by uuid references auth.users on delete set null,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists document_acks (
+  document_id uuid not null references documents on delete cascade,
+  user_id uuid not null references auth.users on delete cascade,
+  version int not null,
+  acknowledged_at timestamptz not null default now(),
+  primary key (document_id, user_id, version)
+);
+
+create table if not exists document_requests (
+  id uuid primary key default gen_random_uuid(),
+  org_id uuid not null references orgs on delete cascade,
+  user_id uuid not null references auth.users on delete cascade,
+  title text not null,
+  note text,
+  status text not null default 'pending' check (status in ('pending', 'fulfilled', 'closed')),
+  fulfilled_path text,
+  due_at timestamptz,
+  created_by uuid references auth.users on delete set null,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists warnings (
+  id uuid primary key default gen_random_uuid(),
+  org_id uuid not null references orgs on delete cascade,
+  user_id uuid not null references auth.users on delete cascade,
+  title text not null,
+  body text,
+  severity text not null default 'info' check (severity in ('info', 'formal', 'final')),
+  status text not null default 'open' check (status in ('open', 'acknowledged', 'resolved')),
+  issued_by uuid references auth.users on delete set null,
+  acknowledged_at timestamptz,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists qa_reports (
+  id uuid primary key default gen_random_uuid(),
+  org_id uuid not null references orgs on delete cascade,
+  user_id uuid not null references auth.users on delete cascade,
+  reviewer_id uuid references auth.users on delete set null,
+  title text not null,
+  summary text,
+  scores jsonb not null default '{}',
+  status text not null default 'published' check (status in ('draft', 'published', 'reviewed')),
   created_at timestamptz not null default now()
 );
 
@@ -373,8 +479,15 @@ create index if not exists messages_channel_idx on messages (channel_id, created
 create index if not exists tasks_org_idx on tasks (org_id, status);
 create index if not exists tasks_assignee_idx on tasks (assignee_id) where assignee_id is not null;
 create index if not exists clock_entries_user_idx on clock_entries (org_id, user_id, clock_in_at);
-create index if not exists shifts_user_idx on shifts (org_id, user_id, starts_at);
+create index if not exists shifts_user_idx on shifts (org_id, user_id, status);
+create index if not exists leave_requests_user_idx on leave_requests (org_id, user_id, status);
 create index if not exists sop_pages_org_idx on sop_pages (org_id, category, position);
+create index if not exists sop_acks_user_idx on sop_acknowledgments (user_id);
+create index if not exists documents_org_idx on documents (org_id, kind);
+create index if not exists document_acks_user_idx on document_acks (user_id);
+create index if not exists document_requests_user_idx on document_requests (org_id, user_id, status);
+create index if not exists warnings_user_idx on warnings (org_id, user_id, status);
+create index if not exists qa_reports_user_idx on qa_reports (org_id, user_id);
 create index if not exists quotes_org_idx on quotes (org_id, created_at);
 create index if not exists notifications_user_idx on notifications (user_id, read_at);
 create index if not exists audit_events_org_idx on audit_events (org_id, created_at);
@@ -392,8 +505,15 @@ alter table messages enable row level security;
 alter table tasks enable row level security;
 alter table clock_entries enable row level security;
 alter table shifts enable row level security;
+alter table leave_requests enable row level security;
 alter table sop_pages enable row level security;
 alter table sop_revisions enable row level security;
+alter table sop_acknowledgments enable row level security;
+alter table documents enable row level security;
+alter table document_acks enable row level security;
+alter table document_requests enable row level security;
+alter table warnings enable row level security;
+alter table qa_reports enable row level security;
 alter table rate_tables enable row level security;
 alter table zones enable row level security;
 alter table quotes enable row level security;
@@ -413,6 +533,10 @@ alter table webhook_events enable row level security;
 create policy orgs_select on orgs for select to authenticated
   using (public.is_org_member(id));
 
+create policy orgs_admin_update on orgs for update to authenticated
+  using (public.is_org_admin(id))
+  with check (public.is_org_admin(id));
+
 create policy profiles_select on profiles for select to authenticated
   using (
     (select auth.uid()) = id
@@ -424,8 +548,26 @@ create policy profiles_select on profiles for select to authenticated
   );
 
 create policy profiles_update on profiles for update to authenticated
-  using ((select auth.uid()) = id)
-  with check ((select auth.uid()) = id);
+  using (
+    (select auth.uid()) = id
+    or exists (
+      select 1 from org_members me
+      join org_members other on other.org_id = me.org_id
+      where me.user_id = (select auth.uid())
+        and me.role = 'admin'
+        and other.user_id = profiles.id
+    )
+  )
+  with check (
+    (select auth.uid()) = id
+    or exists (
+      select 1 from org_members me
+      join org_members other on other.org_id = me.org_id
+      where me.user_id = (select auth.uid())
+        and me.role = 'admin'
+        and other.user_id = profiles.id
+    )
+  );
 
 create policy org_members_select on org_members for select to authenticated
   using (public.is_org_member(org_id));
@@ -525,7 +667,15 @@ create policy messages_delete on messages for delete to authenticated
   using (author_id = (select auth.uid()) or public.is_org_admin(org_id));
 
 create policy tasks_select on tasks for select to authenticated
-  using (public.is_org_member(org_id));
+  using (
+    public.is_org_member(org_id)
+    and (
+      kind = 'task'
+      or public.is_org_admin(org_id)
+      or created_by = (select auth.uid())
+      or assignee_id = (select auth.uid())
+    )
+  );
 
 create policy tasks_insert on tasks for insert to authenticated
   with check (public.is_org_member(org_id) and created_by = (select auth.uid()));
@@ -558,16 +708,51 @@ create policy clock_entries_delete on clock_entries for delete to authenticated
   using (public.is_org_admin(org_id));
 
 create policy shifts_select on shifts for select to authenticated
-  using (public.is_org_member(org_id));
+  using (
+    public.is_org_member(org_id)
+    and (user_id = (select auth.uid()) or public.is_org_admin(org_id))
+  );
 
-create policy shifts_admin_write on shifts for insert to authenticated
+create policy shifts_admin_insert on shifts for insert to authenticated
   with check (public.is_org_admin(org_id));
 
-create policy shifts_admin_update on shifts for update to authenticated
-  using (public.is_org_admin(org_id))
-  with check (public.is_org_admin(org_id));
+create policy shifts_update on shifts for update to authenticated
+  using (
+    public.is_org_admin(org_id)
+    or (user_id = (select auth.uid()) and acknowledged_at is null)
+  )
+  with check (
+    public.is_org_admin(org_id)
+    or (
+      user_id = (select auth.uid())
+      and acknowledged_at is not null
+      and status = 'active'
+    )
+  );
 
 create policy shifts_admin_delete on shifts for delete to authenticated
+  using (public.is_org_admin(org_id));
+
+create policy leave_requests_select on leave_requests for select to authenticated
+  using (
+    public.is_org_member(org_id)
+    and (user_id = (select auth.uid()) or public.is_org_admin(org_id))
+  );
+
+create policy leave_requests_insert on leave_requests for insert to authenticated
+  with check (public.is_org_member(org_id) and user_id = (select auth.uid()));
+
+create policy leave_requests_update on leave_requests for update to authenticated
+  using (
+    public.is_org_admin(org_id)
+    or (user_id = (select auth.uid()) and status = 'pending')
+  )
+  with check (
+    public.is_org_admin(org_id)
+    or (user_id = (select auth.uid()) and status = 'cancelled')
+  );
+
+create policy leave_requests_delete on leave_requests for delete to authenticated
   using (public.is_org_admin(org_id));
 
 create policy sop_pages_select on sop_pages for select to authenticated
@@ -598,6 +783,128 @@ create policy sop_revisions_admin_insert on sop_revisions for insert to authenti
       where p.id = sop_revisions.page_id and public.is_org_admin(p.org_id)
     )
   );
+
+create policy sop_acks_select on sop_acknowledgments for select to authenticated
+  using (
+    user_id = (select auth.uid())
+    or exists (
+      select 1 from sop_pages p
+      where p.id = sop_acknowledgments.page_id and public.is_org_admin(p.org_id)
+    )
+  );
+
+create policy sop_acks_insert on sop_acknowledgments for insert to authenticated
+  with check (
+    user_id = (select auth.uid())
+    and exists (
+      select 1 from sop_pages p
+      where p.id = sop_acknowledgments.page_id
+        and p.published
+        and public.is_org_member(p.org_id)
+    )
+  );
+
+create policy documents_select on documents for select to authenticated
+  using (public.is_org_member(org_id));
+
+create policy documents_admin_insert on documents for insert to authenticated
+  with check (public.is_org_admin(org_id));
+
+create policy documents_admin_update on documents for update to authenticated
+  using (public.is_org_admin(org_id))
+  with check (public.is_org_admin(org_id));
+
+create policy documents_admin_delete on documents for delete to authenticated
+  using (public.is_org_admin(org_id));
+
+create policy document_acks_select on document_acks for select to authenticated
+  using (
+    user_id = (select auth.uid())
+    or exists (
+      select 1 from documents d
+      where d.id = document_acks.document_id and public.is_org_admin(d.org_id)
+    )
+  );
+
+create policy document_acks_insert on document_acks for insert to authenticated
+  with check (
+    user_id = (select auth.uid())
+    and exists (
+      select 1 from documents d
+      where d.id = document_acks.document_id and public.is_org_member(d.org_id)
+    )
+  );
+
+create policy document_requests_select on document_requests for select to authenticated
+  using (
+    public.is_org_member(org_id)
+    and (user_id = (select auth.uid()) or public.is_org_admin(org_id))
+  );
+
+create policy document_requests_admin_insert on document_requests for insert to authenticated
+  with check (public.is_org_admin(org_id));
+
+create policy document_requests_update on document_requests for update to authenticated
+  using (
+    public.is_org_admin(org_id)
+    or (user_id = (select auth.uid()) and status = 'pending')
+  )
+  with check (
+    public.is_org_admin(org_id)
+    or (
+      user_id = (select auth.uid())
+      and status = 'fulfilled'
+      and fulfilled_path is not null
+    )
+  );
+
+create policy document_requests_delete on document_requests for delete to authenticated
+  using (public.is_org_admin(org_id));
+
+create policy warnings_select on warnings for select to authenticated
+  using (
+    public.is_org_member(org_id)
+    and (user_id = (select auth.uid()) or public.is_org_admin(org_id))
+  );
+
+create policy warnings_admin_insert on warnings for insert to authenticated
+  with check (public.is_org_admin(org_id));
+
+create policy warnings_update on warnings for update to authenticated
+  using (
+    public.is_org_admin(org_id)
+    or (user_id = (select auth.uid()) and acknowledged_at is null)
+  )
+  with check (
+    public.is_org_admin(org_id)
+    or (
+      user_id = (select auth.uid())
+      and acknowledged_at is not null
+      and status = 'acknowledged'
+    )
+  );
+
+create policy warnings_delete on warnings for delete to authenticated
+  using (public.is_org_admin(org_id));
+
+create policy qa_reports_select on qa_reports for select to authenticated
+  using (
+    public.is_org_member(org_id)
+    and (
+      public.is_org_admin(org_id)
+      or (user_id = (select auth.uid()) and status <> 'draft')
+    )
+  );
+
+create policy qa_reports_admin_insert on qa_reports for insert to authenticated
+  with check (public.is_org_admin(org_id));
+
+create policy qa_reports_admin_update on qa_reports for update to authenticated
+  using (public.is_org_admin(org_id))
+  with check (public.is_org_admin(org_id));
+
+create policy qa_reports_admin_delete on qa_reports for delete to authenticated
+  using (public.is_org_admin(org_id));
 
 create policy rate_tables_select on rate_tables for select to authenticated
   using (public.is_org_member(org_id));
@@ -798,10 +1105,30 @@ begin
   ) then
     alter publication supabase_realtime add table clock_entries;
   end if;
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'tasks'
+  ) then
+    alter publication supabase_realtime add table tasks;
+  end if;
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'shifts'
+  ) then
+    alter publication supabase_realtime add table shifts;
+  end if;
 end $$;
 
 insert into storage.buckets (id, name, public)
 values ('avatars', 'avatars', true)
+on conflict (id) do nothing;
+
+insert into storage.buckets (id, name, public)
+values ('documents', 'documents', false)
+on conflict (id) do nothing;
+
+insert into storage.buckets (id, name, public)
+values ('document-uploads', 'document-uploads', false)
 on conflict (id) do nothing;
 
 create policy avatars_read on storage.objects for select to authenticated
@@ -809,3 +1136,58 @@ create policy avatars_read on storage.objects for select to authenticated
 
 create policy avatars_write on storage.objects for insert to authenticated
   with check (bucket_id = 'avatars' and (storage.foldername(name))[1] = (select auth.uid())::text);
+
+create policy avatars_update on storage.objects for update to authenticated
+  using (bucket_id = 'avatars' and (storage.foldername(name))[1] = (select auth.uid())::text);
+
+create policy avatars_delete on storage.objects for delete to authenticated
+  using (bucket_id = 'avatars' and (storage.foldername(name))[1] = (select auth.uid())::text);
+
+create policy documents_read on storage.objects for select to authenticated
+  using (
+    bucket_id = 'documents'
+    and public.is_org_member(((storage.foldername(name))[1])::uuid)
+  );
+
+create policy documents_write on storage.objects for insert to authenticated
+  with check (
+    bucket_id = 'documents'
+    and public.is_org_admin(((storage.foldername(name))[1])::uuid)
+  );
+
+create policy documents_update on storage.objects for update to authenticated
+  using (
+    bucket_id = 'documents'
+    and public.is_org_admin(((storage.foldername(name))[1])::uuid)
+  );
+
+create policy documents_delete on storage.objects for delete to authenticated
+  using (
+    bucket_id = 'documents'
+    and public.is_org_admin(((storage.foldername(name))[1])::uuid)
+  );
+
+create policy uploads_read on storage.objects for select to authenticated
+  using (
+    bucket_id = 'document-uploads'
+    and (
+      (storage.foldername(name))[2] = (select auth.uid())::text
+      or public.is_org_admin(((storage.foldername(name))[1])::uuid)
+    )
+  );
+
+create policy uploads_write on storage.objects for insert to authenticated
+  with check (
+    bucket_id = 'document-uploads'
+    and (storage.foldername(name))[2] = (select auth.uid())::text
+    and public.is_org_member(((storage.foldername(name))[1])::uuid)
+  );
+
+create policy uploads_delete on storage.objects for delete to authenticated
+  using (
+    bucket_id = 'document-uploads'
+    and (
+      (storage.foldername(name))[2] = (select auth.uid())::text
+      or public.is_org_admin(((storage.foldername(name))[1])::uuid)
+    )
+  );
