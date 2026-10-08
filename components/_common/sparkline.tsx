@@ -1,10 +1,11 @@
-import { TREND_PATTERN } from "@/data/companies";
 import { cn } from "@/lib/utils";
 
 type SparklineProps = {
   values: number[];
   className?: string;
 };
+
+const TREND_PATTERN = [1, 0, 0];
 
 const HEIGHT_CLASS: Record<number, string> = {
   1: "h-px",

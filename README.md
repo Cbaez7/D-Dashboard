@@ -1,6 +1,6 @@
-# Kargul Starter
+# BNG Desk
 
-Next.js 16 + React 19 + Tailwind CSS 4 boilerplate. Read `CONVENTIONS.md` before writing any component, section, or page — it is the whole spec for how this repo is built.
+Dispatch ops console for BNG — trips, map, inbox, calls, chat, quoting, SOPs and clock-in in one Next.js app. Built on the Kargul starter (Next.js 16 + React 19 + Tailwind CSS 4). Read `CONVENTIONS.md` before writing any component, section, or page — it is the whole spec for how this repo is built.
 
 ## Getting started
 
@@ -17,16 +17,18 @@ Open [http://localhost:3000](http://localhost:3000).
 | `npm run build`        | Production build                                                   |
 | `npm run start`        | Serve the production build                                         |
 | `npm run lint`         | ESLint                                                             |
-| `npm run to:avif`      | Convert an image to AVIF and report its inline cost — rule 11      |
-| `npm run extract:avif` | Pull the first frame of every `.webm` under `public/` as a poster  |
-| `npm run frame:rive`   | Render a still from a `.riv` file for use as its poster            |
 
-## First things to set on a new project
+## Environment
 
-1. **`lib/seo.ts`** — `SITE_NAME`, `SITE_URL`, `SITE_DESCRIPTION`, `SITE_ROUTES`. Everything in `app/robots.ts`, `app/sitemap.ts`, `app/llms.txt/route.ts` and every page's metadata derives from these (rule 18). Set `NEXT_PUBLIC_SITE_URL` in the environment to override the URL per deploy.
-2. **`app/globals.css`** — match the `@layer base` type scale and the `--padding-section-*` tokens to the design before building anything (rules 1 and 3).
-3. **`app/opengraph-image.jpg`** — 1200×630, with an `opengraph-image.alt.txt` beside it.
-4. **Fonts** — `app/layout.tsx` ships Inter + a local Inter Display; swap them for the design's typeface.
+Copy `.env.local.example` to `.env.local` and fill in:
+
+- `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` / `SUPABASE_SERVICE_ROLE_KEY` — the Supabase project
+- `GRAPH_*` — Microsoft 365 app for the shared dispatch mailbox
+- `LIMO_API_*` — LimoAnywhere API (read-only mirror)
+- `CX3_WEBHOOK_SECRET` — secret on the 3CX CRM-URL webhook route
+- `FLIGHTAWARE_KEY`, `NEXT_PUBLIC_MAP_TILES_URL`
+
+Without Supabase env vars the app runs unauthenticated (dev mode). Apply `supabase/schema.sql` to a fresh project to provision the database.
 
 ## Docs
 
@@ -34,4 +36,4 @@ Open [http://localhost:3000](http://localhost:3000).
 | ------------------ | ------------------------------------------------------------------- |
 | `CONVENTIONS.md`   | The build rules. Read first.                                        |
 | `AGENTS.md`        | Next.js version notes for agents                                    |
-| `OPTIMIZATION.md`  | Why `Asset`'s Rive loading is gated behind LCP, with the measurements |
+| `.builderrules`    | Quick rules (same content, terser)                                  |

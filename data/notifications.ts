@@ -1,15 +1,12 @@
-export type NotificationKind =
-  | "mention"
-  | "stage"
-  | "alert"
-  | "update"
-  | "invite";
+import type { SurfaceId } from "@/stores/app-store";
+
+export type NotificationKind = "call" | "trip" | "mention" | "task" | "system";
 
 export type Notification = {
   id: string;
   kind: NotificationKind;
   actor?: string;
-  companyId: string;
+  surface?: SurfaceId;
   message: string;
   quote?: string;
   time: string;
@@ -19,65 +16,46 @@ export type Notification = {
 export const NOTIFICATIONS: Notification[] = [
   {
     id: "n1",
-    kind: "mention",
-    actor: "Mark Darnalds",
-    companyId: "microsoft",
-    message: "mentioned you on Microsoft",
-    quote:
-      "Can you join the pilot review on Friday? Procurement wants a security walkthrough.",
-    time: "2m ago",
+    kind: "call",
+    surface: "calls",
+    message: "Missed call from +1 (310) 555-0182",
+    time: "4m ago",
     unread: true,
   },
   {
     id: "n2",
-    kind: "stage",
-    actor: "Sarah Nguyen",
-    companyId: "lvmh",
-    message: "moved LVMH to Renewal",
-    time: "18m ago",
+    kind: "trip",
+    surface: "dispatch",
+    message: "Trip #1042 updated in LimoAnywhere",
+    time: "12m ago",
     unread: true,
   },
   {
     id: "n3",
-    kind: "alert",
-    companyId: "slack",
-    message: "Win probability for Slack dropped to 23%",
-    time: "1h ago",
+    kind: "mention",
+    actor: "Marta",
+    surface: "chat",
+    message: "mentioned you in #dispatch",
+    quote: "Can someone cover the LAX pickup at 6am?",
+    time: "26m ago",
     unread: true,
   },
   {
     id: "n4",
-    kind: "update",
-    actor: "Emma Green",
-    companyId: "shopify",
-    message: "updated the Business fit score card for Shopify",
-    time: "3h ago",
+    kind: "task",
+    actor: "Admin",
+    surface: "dispatch",
+    message: "assigned you a task",
+    quote: "Confirm driver for the Peterson wedding Saturday",
+    time: "1h ago",
     unread: false,
   },
   {
     id: "n5",
-    kind: "update",
-    actor: "Noah Lee",
-    companyId: "stripe",
-    message: "logged a demo with Stripe",
-    time: "Yesterday",
-    unread: false,
-  },
-  {
-    id: "n6",
-    kind: "alert",
-    companyId: "snowflake",
-    message: "Pipeline value for Snowflake increased to $520,000",
-    time: "2d ago",
-    unread: false,
-  },
-  {
-    id: "n7",
-    kind: "invite",
-    actor: "Grace Miller",
-    companyId: "hubspot",
-    message: "added you to the Hubspot account team",
-    time: "3d ago",
+    kind: "system",
+    surface: "admin",
+    message: "LimoAnywhere sync completed — 34 trips mirrored",
+    time: "2h ago",
     unread: false,
   },
 ];

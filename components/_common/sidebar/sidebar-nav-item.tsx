@@ -10,6 +10,7 @@ type SidebarNavItemProps = {
   active?: boolean;
   tone?: "default" | "quiet";
   iconClassName?: string;
+  onClick?: () => void;
 };
 
 export default function SidebarNavItem({
@@ -19,6 +20,7 @@ export default function SidebarNavItem({
   active = false,
   tone = "default",
   iconClassName,
+  onClick,
 }: SidebarNavItemProps) {
   return (
     <li className={cn(active && "mb-0.75")}>
@@ -27,6 +29,7 @@ export default function SidebarNavItem({
         size="md"
         data-active={active}
         aria-current={active ? "page" : undefined}
+        onClick={onClick}
         className={cn(
           "group h-[30px] gap-1.5 py-0 data-[active=true]:h-8",
           tone === "quiet" && "text-subtle",
