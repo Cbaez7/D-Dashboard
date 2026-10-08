@@ -88,6 +88,20 @@ revoke all on function public.create_org(text) from public;
 revoke execute on function public.create_org(text) from anon;
 grant execute on function public.create_org(text) to authenticated;
 
+create or replace function public.is_channel_member(p_channel_id uuid)
+returns boolean
+language sql stable security definer
+set search_path = ''
+as $$
+  select exists (
+    select 1 from public.channel_members
+    where channel_id = p_channel_id and user_id = (select auth.uid())
+  )
+$$;
+
+revoke all on function public.is_channel_member(uuid) from public;
+grant execute on function public.is_channel_member(uuid) to authenticated;
+
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql security definer
@@ -613,13 +627,7 @@ create policy audit_events_insert on audit_events for insert to authenticated
 create policy channels_select on channels for select to authenticated
   using (
     public.is_org_member(org_id)
-    and (
-      kind <> 'dm'
-      or exists (
-        select 1 from channel_members cm
-        where cm.channel_id = channels.id and cm.user_id = (select auth.uid())
-      )
-    )
+    and (kind <> 'dm' or public.is_channel_member(id))
   );
 
 create policy channels_insert on channels for insert to authenticated
@@ -665,20 +673,14 @@ create policy channel_members_update on channel_members for update to authentica
 create policy messages_select on messages for select to authenticated
   using (
     public.is_org_member(org_id)
-    and exists (
-      select 1 from channel_members cm
-      where cm.channel_id = messages.channel_id and cm.user_id = (select auth.uid())
-    )
+    and public.is_channel_member(messages.channel_id)
   );
 
 create policy messages_insert on messages for insert to authenticated
   with check (
     public.is_org_member(org_id)
     and author_id = (select auth.uid())
-    and exists (
-      select 1 from channel_members cm
-      where cm.channel_id = messages.channel_id and cm.user_id = (select auth.uid())
-    )
+    and public.is_channel_member(messages.channel_id)
   );
 
 create policy messages_update on messages for update to authenticated

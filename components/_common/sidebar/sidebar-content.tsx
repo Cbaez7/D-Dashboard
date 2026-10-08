@@ -6,7 +6,6 @@ import SidebarSection from "./sidebar-section";
 import { SURFACE_GROUPS, surfaceById } from "./nav";
 import { useAppStore } from "@/stores/app-store";
 import { useChatStore } from "@/stores/chat-store";
-import { CHANNELS } from "@/data/chat";
 import { useSessionStore } from "@/stores/session-store";
 import Logo from "@/public/assets/images/_common/logo.svg";
 import UserPlusIcon from "@/public/assets/images/_common/user-plus.svg";
@@ -20,7 +19,8 @@ export default function SidebarContent() {
   const messages = useChatStore((state) => state.messages);
   const lastRead = useChatStore((state) => state.lastRead);
   const displayName = useSessionStore((state) => state.displayName);
-  const chatUnread = CHANNELS.reduce(
+  const channels = useChatStore((state) => state.channels);
+  const chatUnread = channels.reduce(
     (total, channel) =>
       total +
       messages.filter(

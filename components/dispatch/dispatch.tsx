@@ -24,7 +24,6 @@ import { useChatStore } from "@/stores/chat-store";
 import { useGuideStore } from "@/stores/guide-store";
 import { useTasksStore } from "@/stores/tasks-store";
 import { useSessionStore } from "@/stores/session-store";
-import { CHANNELS } from "@/data/chat";
 
 const PRIORITY_TONE: Record<Task["priority"], "neutral" | "blue" | "orange" | "red"> = {
   low: "neutral",
@@ -63,6 +62,7 @@ function AttentionStrip() {
   const messages = useChatStore((state) => state.messages);
   const lastRead = useChatStore((state) => state.lastRead);
   const displayName = useSessionStore((state) => state.displayName);
+  const channels = useChatStore((state) => state.channels);
 
   const pendingSops = pages.filter(
     (page) => page.requiresAck && acknowledgments[page.id] !== page.version,
@@ -72,7 +72,7 @@ function AttentionStrip() {
       task.assignee === displayName &&
       (task.status === "open" || task.status === "in_progress"),
   ).length;
-  const unreadChats = CHANNELS.reduce(
+  const unreadChats = channels.reduce(
     (total, channel) =>
       total +
       messages.filter(

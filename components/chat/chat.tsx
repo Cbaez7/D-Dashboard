@@ -6,14 +6,15 @@ import { Input } from "@/components/_ui/input";
 import { ScrollArea } from "@/components/_ui/scroll-area";
 import Tag from "@/components/_ui/tag";
 import { cn } from "@/lib/utils";
-import { CHANNELS, type ChatChannel } from "@/data/chat";
+import type { ChatChannel } from "@/data/chat";
 import { useChatStore } from "@/stores/chat-store";
 import { useSessionStore } from "@/stores/session-store";
 import ChatIcon from "@/public/assets/images/nav/chat.svg";
 
 export default function Chat() {
   const activeChannelId = useChatStore((state) => state.activeChannelId);
-  const channel = CHANNELS.find((item) => item.id === activeChannelId);
+  const channels = useChatStore((state) => state.channels);
+  const channel = channels.find((item) => item.id === activeChannelId);
 
   return (
     <section className="flex min-h-0 min-w-0 flex-1">
@@ -50,7 +51,8 @@ function ChannelGroup({ title, kind }: { title: string; kind: ChatChannel["kind"
   const activeChannelId = useChatStore((state) => state.activeChannelId);
   const setActiveChannel = useChatStore((state) => state.setActiveChannel);
   const unreadCount = useChatStore((state) => state.unreadCount);
-  const channels = CHANNELS.filter((channel) => channel.kind === kind);
+  const allChannels = useChatStore((state) => state.channels);
+  const channels = allChannels.filter((channel) => channel.kind === kind);
 
   if (channels.length === 0) return null;
 

@@ -30,5 +30,8 @@ export async function GET(request: Request) {
   const dest = error
     ? `/login?error=${encodeURIComponent(error.message)}`
     : "/";
-  return NextResponse.redirect(new URL(dest, request.url));
+  return new NextResponse(null, {
+    status: 307,
+    headers: { Location: dest },
+  });
 }
