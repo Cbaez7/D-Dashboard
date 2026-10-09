@@ -11,8 +11,8 @@ import {
 import { ScrollArea } from "@/components/_ui/scroll-area";
 import { Tabs, TabsList, TabsTrigger } from "@/components/_ui/tabs";
 import NotificationItem from "./notification-item";
-import { NOTIFICATIONS } from "@/data/notifications";
 import { useAppStore } from "@/stores/app-store";
+import { useNotificationsStore } from "@/stores/notifications-store";
 import BellIcon from "@/public/assets/images/_common/bell.svg";
 
 type Filter = "all" | "unread";
@@ -22,12 +22,12 @@ export default function Notifications() {
   const [filter, setFilter] = useState<Filter>("all");
   const navigated = useRef(false);
   const setActiveSurface = useAppStore((state) => state.setActiveSurface);
+  const items = useNotificationsStore((state) => state.items);
+  const markRead = useNotificationsStore((state) => state.markRead);
+  const markAllRead = useNotificationsStore((state) => state.markAllRead);
 
-  const unreadIds = NOTIFICATIONS.filter((item) => item.unread).map(
-    (item) => item.id,
-  );
-  const unreadCount = unreadIds.length;
-  const visible = NOTIFICATIONS.filter(
+  const unreadCount = items.filter((item) => item.unread).length;
+  const visible = items.filter(
     (item) => filter === "all" || item.unread,
   );
 
@@ -76,6 +76,7 @@ export default function Notifications() {
             size="sm"
             disabled={unreadCount === 0}
             className="-mr-1.5"
+            onClick={markAllRead}
           >
             Mark all as read
           </Button>
@@ -103,10 +104,12 @@ export default function Notifications() {
                   key={notification.id}
                   notification={notification}
                   unread={notification.unread}
-                  onSelect={() =>
-                    notification.surface &&
-                    handleSelect(notification.surface)
-                  }
+                  onSelect={() => {
+                    markRead(notification.id);
+                    if (notification.surface) {
+                      handleSelect(notification.surface);
+                    }
+                  }}
                 />
               ))}
             </ul>

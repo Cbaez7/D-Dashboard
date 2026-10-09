@@ -1,7 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import Button from "@/components/_ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/_ui/dialog";
+import { Input } from "@/components/_ui/input";
+import { Label } from "@/components/_ui/label";
 import { ScrollArea } from "@/components/_ui/scroll-area";
 import {
   Select,
@@ -21,55 +32,50 @@ import {
 } from "@/components/_ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/_ui/tabs";
 import UserPlusIcon from "@/public/assets/images/_common/user-plus.svg";
-
-type Member = { name: string; role: "admin" | "dispatcher" };
-
-const INITIAL_MEMBERS: Member[] = [
-  { name: "Chris Baez", role: "admin" },
-  { name: "Maria Santos", role: "dispatcher" },
-  { name: "Devon Cole", role: "dispatcher" },
-  { name: "Priya Nair", role: "dispatcher" },
-];
+import { inviteMember } from "@/app/actions/admin";
+import { useAdminStore } from "@/stores/admin-store";
+import { useSessionStore } from "@/stores/session-store";
+import type { IntegrationState, Member, Vehicle } from "@/lib/db/admin";
 
 const INTEGRATIONS = [
   {
     key: "limoanywhere",
     name: "LimoAnywhere",
     note: "Read-only mirror — trips, drivers, invoices",
-    status: "Awaiting API access",
+    fallback: "Awaiting API access",
   },
   {
     key: "graph",
     name: "Microsoft 365 mail",
     note: "Shared dispatch mailbox via Graph",
-    status: "Awaiting consent",
+    fallback: "Awaiting consent",
   },
   {
     key: "3cx",
     name: "3CX",
     note: "Call Control API ≥8SC, or CRM-URL webhook",
-    status: "Awaiting license check",
+    fallback: "Awaiting license check",
   },
   {
     key: "maps",
     name: "Map provider",
     note: "Generic placeholder now, dedicated repo later",
-    status: "Placeholder active",
+    fallback: "Placeholder active",
   },
   {
     key: "flights",
     name: "Flight tracking",
     note: "FlightAware or equivalent",
-    status: "Not configured",
+    fallback: "Not configured",
   },
 ];
 
-const ACTIVITY = [
-  { who: "Maria Santos", what: "Edited SOP “Airport pickup procedure” → v5", when: "2026-10-08T12:15:00Z" },
-  { who: "Devon Cole", what: "Completed task #1038 — Stage vehicle 12", when: "2026-10-08T11:40:00Z" },
-  { who: "Chris Baez", what: "Linked email thread to trip #4471", when: "2026-10-08T10:05:00Z" },
-  { who: "Chris Baez", what: "Issued warning — missed handoff (draft)", when: "2026-10-07T22:31:00Z" },
-];
+function integrationDisplay(state: IntegrationState | undefined, fallback: string) {
+  if (!state) return { label: fallback, tone: fallback === "Placeholder active" ? "blue" : "amber" } as const;
+  if (state.status === "ok") return { label: "Connected", tone: "green" } as const;
+  if (state.status === "error") return { label: "Error", tone: "red" } as const;
+  return { label: "Pending", tone: "amber" } as const;
+}
 
 export default function Admin() {
   const [tab, setTab] = useState("team");
@@ -109,16 +115,16 @@ export default function Admin() {
 }
 
 function Team() {
-  const [members, setMembers] = useState(INITIAL_MEMBERS);
+  const members = useAdminStore((state) => state.members);
+  const setMemberRole = useAdminStore((state) => state.setMemberRole);
+  const live = useAdminStore((state) => state.live);
+  const currentUserId = useSessionStore((state) => state.userId);
 
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <h2>Team</h2>
-        <Button variant="secondary" size="md">
-          <UserPlusIcon aria-hidden className="size-3.5" />
-          Invite member
-        </Button>
+        {live && <InviteDialog />}
       </div>
       <div className="border-border bg-card overflow-hidden rounded-xl border">
         <Table>
@@ -130,19 +136,19 @@ function Team() {
           </TableHeader>
           <TableBody>
             {members.map((member) => (
-              <TableRow key={member.name}>
-                <TableCell>{member.name}</TableCell>
+              <TableRow key={member.id}>
+                <TableCell>
+                  {member.name}
+                  {member.id === currentUserId && (
+                    <span className="text-subtle caption-style ml-2">you</span>
+                  )}
+                </TableCell>
                 <TableCell className="text-right">
                   <Select
                     value={member.role}
+                    disabled={!live || member.id === currentUserId}
                     onValueChange={(role) =>
-                      setMembers((list) =>
-                        list.map((item) =>
-                          item.name === member.name
-                            ? { ...item, role: role as Member["role"] }
-                            : item,
-                        ),
-                      )
+                      setMemberRole(member.id, role as Member["role"])
                     }
                   >
                     <SelectTrigger
@@ -166,42 +172,127 @@ function Team() {
   );
 }
 
+function InviteDialog() {
+  const refresh = useAdminStore((state) => state.refresh);
+  const [open, setOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [pending, startTransition] = useTransition();
+
+  const submit = (formData: FormData) => {
+    const email = String(formData.get("email") ?? "").trim();
+    const name = String(formData.get("name") ?? "").trim();
+    const role = String(formData.get("role") ?? "dispatcher") as
+      | "admin"
+      | "dispatcher";
+    setError(null);
+    startTransition(async () => {
+      const result = await inviteMember(email, name, role);
+      if (!result.ok) {
+        setError(result.error);
+        return;
+      }
+      setOpen(false);
+      void refresh();
+    });
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="secondary" size="md">
+          <UserPlusIcon aria-hidden className="size-3.5" />
+          Invite member
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Invite member</DialogTitle>
+          <DialogDescription>
+            Sends an email invite; they set their own password on first sign-in.
+          </DialogDescription>
+        </DialogHeader>
+        <form action={submit} className="flex flex-col gap-4 px-6 py-5">
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="invite-name">Name</Label>
+            <Input id="invite-name" name="name" required placeholder="Maria Santos" />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="invite-email">Email</Label>
+            <Input
+              id="invite-email"
+              name="email"
+              type="email"
+              required
+              placeholder="maria@bnglimo.com"
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="invite-role">Role</Label>
+            <Select name="role" defaultValue="dispatcher">
+              <SelectTrigger id="invite-role" className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="dispatcher">Dispatcher</SelectItem>
+                <SelectItem value="admin">Admin</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          {error && <p className="caption-style text-danger">{error}</p>}
+          <DialogFooter className="-mx-6 -mb-5">
+            <Button variant="primary" size="md" type="submit" disabled={pending}>
+              {pending ? "Sending…" : "Send invite"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function Integrations() {
+  const states = useAdminStore((state) => state.integrations);
+
   return (
     <div className="flex flex-col gap-3">
       <h2>Integrations</h2>
       <div className="divide-border border-border bg-card divide-y rounded-xl border">
-        {INTEGRATIONS.map((integration) => (
-          <div
-            key={integration.key}
-            className="flex items-center gap-4 px-4 py-3"
-          >
-            <div className="min-w-0 flex-1">
-              <p className="text-[14px] leading-none font-medium">
-                {integration.name}
-              </p>
-              <p className="caption-style text-subtle mt-1">
-                {integration.note}
-              </p>
-            </div>
-            <Tag
-              tone={integration.status === "Placeholder active" ? "blue" : "amber"}
-              size="sm"
+        {INTEGRATIONS.map((integration) => {
+          const display = integrationDisplay(
+            states.find((state) => state.key === integration.key),
+            integration.fallback,
+          );
+          return (
+            <div
+              key={integration.key}
+              className="flex items-center gap-4 px-4 py-3"
             >
-              {integration.status}
-            </Tag>
-          </div>
-        ))}
+              <div className="min-w-0 flex-1">
+                <p className="text-[14px] leading-none font-medium">
+                  {integration.name}
+                </p>
+                <p className="caption-style text-subtle mt-1">
+                  {integration.note}
+                </p>
+              </div>
+              <Tag tone={display.tone} size="sm">
+                {display.label}
+              </Tag>
+            </div>
+          );
+        })}
       </div>
       <p className="caption-style text-subtle">
-        Credentials land in <code>.env.local</code> — keys live in{" "}
-        <code>integration_state</code> per org once the database is provisioned.
+        Credentials land in <code>.env.local</code> — sync state lives in{" "}
+        <code>integration_state</code> per org.
       </p>
     </div>
   );
 }
 
 function Activity() {
+  const activity = useAdminStore((state) => state.activity);
+
   return (
     <div className="flex flex-col gap-3">
       <h2>Activity</h2>
@@ -215,22 +306,38 @@ function Activity() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {ACTIVITY.map((event, index) => (
-              <TableRow key={index}>
+            {activity.map((event) => (
+              <TableRow key={event.id}>
                 <TableCell className="text-subtle">
-                  {new Date(event.when).toLocaleString("en-GB", {
+                  {new Date(event.createdAt).toLocaleString("en-GB", {
                     day: "2-digit",
                     month: "short",
                     hour: "2-digit",
                     minute: "2-digit",
                   })}
                 </TableCell>
-                <TableCell className="text-soft">{event.who}</TableCell>
+                <TableCell className="text-soft">{event.actor}</TableCell>
                 <TableCell className="max-w-96">
-                  <span className="block truncate">{event.what}</span>
+                  <span className="block truncate">
+                    {event.action}
+                    {event.entity && (
+                      <span className="text-subtle">
+                        {" "}
+                        · {event.entity}
+                        {event.entityId ? ` ${event.entityId.slice(0, 8)}` : ""}
+                      </span>
+                    )}
+                  </span>
                 </TableCell>
               </TableRow>
             ))}
+            {activity.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={3} className="text-subtle">
+                  No activity yet
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </div>
@@ -239,11 +346,9 @@ function Activity() {
 }
 
 function Fleet() {
-  const vehicles = [
-    { name: "Vehicle 08", plate: "8BNK120", type: "Sedan", status: "active" },
-    { name: "Vehicle 12", plate: "8BNK330", type: "SUV", status: "active" },
-    { name: "Vehicle 15", plate: "8BNK415", type: "Sprinter", status: "maintenance" },
-  ] as const;
+  const vehicles = useAdminStore((state) => state.vehicles);
+  const setVehicleStatus = useAdminStore((state) => state.setVehicleStatus);
+  const live = useAdminStore((state) => state.live);
 
   return (
     <div className="flex flex-col gap-3">
@@ -260,20 +365,51 @@ function Fleet() {
           </TableHeader>
           <TableBody>
             {vehicles.map((vehicle) => (
-              <TableRow key={vehicle.name}>
+              <TableRow key={vehicle.id}>
                 <TableCell>{vehicle.name}</TableCell>
                 <TableCell className="text-soft">{vehicle.plate}</TableCell>
                 <TableCell className="text-soft">{vehicle.type}</TableCell>
                 <TableCell className="text-right">
-                  <Tag
-                    tone={vehicle.status === "active" ? "green" : "amber"}
-                    size="sm"
-                  >
-                    {vehicle.status}
-                  </Tag>
+                  {live ? (
+                    <Select
+                      value={vehicle.status}
+                      onValueChange={(status) =>
+                        setVehicleStatus(
+                          vehicle.id,
+                          status as Vehicle["status"],
+                        )
+                      }
+                    >
+                      <SelectTrigger
+                        className="ml-auto h-7 w-36"
+                        aria-label={`Status for ${vehicle.name}`}
+                      >
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="maintenance">Maintenance</SelectItem>
+                        <SelectItem value="out">Out</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <Tag
+                      tone={vehicle.status === "active" ? "green" : "amber"}
+                      size="sm"
+                    >
+                      {vehicle.status}
+                    </Tag>
+                  )}
                 </TableCell>
               </TableRow>
             ))}
+            {vehicles.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={4} className="text-subtle">
+                  No vehicles yet
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </div>

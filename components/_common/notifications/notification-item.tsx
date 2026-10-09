@@ -1,5 +1,5 @@
 import Button from "@/components/_ui/button";
-import type { Notification } from "@/data/notifications";
+import { formatRelativeTime, type Notification } from "@/data/notifications";
 import BellIcon from "@/public/assets/images/_common/bell.svg";
 import CallsIcon from "@/public/assets/images/nav/calls.svg";
 import TripIcon from "@/public/assets/images/nav/dispatch.svg";
@@ -54,7 +54,7 @@ export default function NotificationItem({
             </span>
           )}
           <span className="caption-style text-subtle flex items-center gap-1.5">
-            {notification.time}
+            {formatRelativeTime(notification.time)}
           </span>
         </span>
         {unread && <span className="sr-only">Unread</span>}
