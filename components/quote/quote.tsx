@@ -1,10 +1,19 @@
 "use client";
 
-import { useMemo, useRef, useState, type ReactNode } from "react";
+import { useMemo, useRef, useState, useTransition, type ReactNode } from "react";
 import Button from "@/components/_ui/button";
 import { Checkbox } from "@/components/_ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/_ui/dialog";
 import Field from "@/components/_ui/field";
 import { Input } from "@/components/_ui/input";
+import { Label } from "@/components/_ui/label";
 import {
   Select,
   SelectContent,
@@ -12,7 +21,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/_ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/_ui/table";
+import Tag from "@/components/_ui/tag";
 import { cn } from "@/lib/utils";
+import { useQuoteStore } from "@/stores/quote-store";
+import type { QuoteStatus, SavedQuote } from "@/lib/db/quotes";
 import {
   AIRPORT_SERVICES,
   type AirportService,
@@ -36,6 +56,7 @@ import {
 import {
   type FeeState,
   type QuoteInput,
+  type QuoteResult,
   cancellationFor,
   computeQuote,
   emptyFees,
@@ -46,6 +67,7 @@ import {
 import CheckIcon from "@/public/assets/images/_common/check-square.svg";
 import CopyIcon from "@/public/assets/images/_common/copy.svg";
 import ExternalIcon from "@/public/assets/images/_common/arrow-up-right.svg";
+import ClockIcon from "@/public/assets/images/nav/clock.svg";
 import PlusIcon from "@/public/assets/images/_common/plus.svg";
 import XIcon from "@/public/assets/images/_common/x.svg";
 
@@ -142,8 +164,12 @@ export default function Quote() {
   const [fees, setFees] = useState<FeeState>(emptyFees);
   const [route, setRoute] = useState({ pickup: "", stops: [] as string[], dropoff: "", garageToPU: true, doToGarage: true });
   const [copied, setCopied] = useState(false);
+  const [view, setView] = useState("quote");
+  const [saveOpen, setSaveOpen] = useState(false);
+  const [saved, setSaved] = useState(false);
   const autoTollRef = useRef<TollKey | null>(null);
   const greeterWasAuto = useRef(false);
+  const live = useQuoteStore((state) => state.live);
 
   const input: QuoteInput = {
     clientType,
@@ -245,6 +271,26 @@ export default function Quote() {
     setTimeout(() => setCopied(false), 1400);
   };
 
+  const loadQuote = (quote: SavedQuote) => {
+    const stored = quote.breakdown;
+    if (!stored?.input) return;
+    const si = stored.input;
+    setClientType(si.clientType);
+    setServiceType(si.serviceType);
+    setAirportService(si.airportService);
+    setVehicle(si.vehicle);
+    setCity(si.city);
+    setZone(si.zone);
+    setPickupCity(si.pickupCity);
+    setDropoffCity(si.dropoffCity);
+    setBillableHours(si.billableHours);
+    setCorporate(si.corporate);
+    setFees(si.fees);
+    if (stored.route) setRoute(stored.route);
+    autoTollRef.current = stored.result?.autoToll ?? null;
+    setView("quote");
+  };
+
   const timed = serviceType === "P2P" || serviceType === "Hourly";
   const minHours =
     timed && vehicle
@@ -279,17 +325,40 @@ export default function Quote() {
     <section className="flex min-h-0 min-w-0 flex-1 flex-col">
       <div className="border-border flex items-center justify-between gap-2 border-b px-4 py-2.5">
         <div className="flex items-center gap-2 text-[13px] text-subtle">
-          {clientType && <span className="text-soft">{clientType}</span>}
-          {serviceType && <span>• {SERVICE_TYPES.find((s) => s.value === serviceType)?.label}</span>}
-          {vehicle && <span>• {vehicle}</span>}
+          {view === "quote" ? (
+            <>
+              {clientType && <span className="text-soft">{clientType}</span>}
+              {serviceType && <span>• {SERVICE_TYPES.find((s) => s.value === serviceType)?.label}</span>}
+              {vehicle && <span>• {vehicle}</span>}
+            </>
+          ) : (
+            <span className="text-soft">Saved quotes</span>
+          )}
         </div>
-        <Button variant="ghost" size="sm" onClick={reset}>
-          <PlusIcon aria-hidden className="size-3" />
-          New quote
-        </Button>
+        <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setView(view === "quote" ? "history" : "quote")}
+          >
+            <ClockIcon aria-hidden className="size-3" />
+            {view === "quote" ? "History" : "Back to quote"}
+          </Button>
+          {view === "quote" && (
+            <Button variant="ghost" size="sm" onClick={reset}>
+              <PlusIcon aria-hidden className="size-3" />
+              New quote
+            </Button>
+          )}
+        </div>
       </div>
 
       <div className="grid min-h-0 flex-1 lg:grid-cols-[minmax(0,1fr)_380px]">
+        {view === "history" ? (
+          <div className="min-h-0 overflow-y-auto p-4">
+            <QuoteHistory onLoad={loadQuote} />
+          </div>
+        ) : (
         <div className="min-h-0 overflow-y-auto p-4">
           <div className="flex max-w-2xl flex-col gap-3">
             <Section step="1" title="Client Type" done={!!clientType}>
@@ -746,6 +815,7 @@ export default function Quote() {
             )}
           </div>
         </div>
+        )}
 
         <aside className="flex min-h-0 flex-col border-l border-line-strong bg-card/50">
           <div className="min-h-0 flex-1 overflow-y-auto p-4">
@@ -803,14 +873,257 @@ export default function Quote() {
             )}
           </div>
 
-          <div className="border-t border-line-strong p-3">
-            <Button variant="primary" className="w-full" onClick={copy} disabled={!result.ready}>
+          <div className="flex gap-2 border-t border-line-strong p-3">
+            <Button
+              variant="secondary"
+              className="flex-1"
+              onClick={() => setSaveOpen(true)}
+              disabled={!result.ready || !live}
+              title={live ? undefined : "History requires a database connection"}
+            >
+              {saved ? "Saved" : "Save"}
+            </Button>
+            <Button variant="primary" className="flex-1" onClick={copy} disabled={!result.ready}>
               <CopyIcon aria-hidden className="size-3" />
-              {copied ? "Copied" : "Copy quote"}
+              {copied ? "Copied" : "Copy"}
             </Button>
           </div>
         </aside>
       </div>
+
+      <SaveQuoteDialog
+        open={saveOpen}
+        onOpenChange={setSaveOpen}
+        input={input}
+        result={result}
+        route={route}
+        onSaved={() => {
+          setSaved(true);
+          setTimeout(() => setSaved(false), 2000);
+        }}
+      />
     </section>
+  );
+}
+
+const STATUS_TONE = {
+  draft: "neutral",
+  sent: "blue",
+  accepted: "green",
+  expired: "amber",
+} as const;
+
+function quoteSummary(quote: SavedQuote) {
+  const pickup = quote.pickup as { city?: string; airport?: string } | null;
+  const dropoff = quote.dropoff as { city?: string; airport?: string } | null;
+  const from = pickup?.city ?? pickup?.airport;
+  const to = dropoff?.city ?? dropoff?.airport;
+  if (from && to) return `${from} → ${to}`;
+  return quote.tripType ?? "Quote";
+}
+
+function SaveQuoteDialog({
+  open,
+  onOpenChange,
+  input,
+  result,
+  route,
+  onSaved,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  input: QuoteInput;
+  result: QuoteResult;
+  route: { pickup: string; stops: string[]; dropoff: string; garageToPU: boolean; doToGarage: boolean };
+  onSaved: () => void;
+}) {
+  const save = useQuoteStore((state) => state.save);
+  const [error, setError] = useState<string | null>(null);
+  const [pending, startTransition] = useTransition();
+
+  const submit = (formData: FormData) => {
+    setError(null);
+    const customer = {
+      name: String(formData.get("name") ?? "").trim(),
+      email: String(formData.get("email") ?? "").trim(),
+      phone: String(formData.get("phone") ?? "").trim(),
+    };
+    startTransition(async () => {
+      const ok = await save(input, result, route, customer);
+      if (!ok) {
+        setError("Could not save the quote — check the connection and retry.");
+        return;
+      }
+      onOpenChange(false);
+      onSaved();
+    });
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Save quote</DialogTitle>
+          <DialogDescription>
+            Saved to quote history — drafts can be copied, marked sent, or
+            reloaded later.
+          </DialogDescription>
+        </DialogHeader>
+        <form action={submit} className="flex flex-col gap-4 px-6 py-5">
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="save-name">Customer name</Label>
+            <Input id="save-name" name="name" placeholder="Optional" />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="save-email">Email</Label>
+              <Input id="save-email" name="email" type="email" placeholder="Optional" />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="save-phone">Phone</Label>
+              <Input id="save-phone" name="phone" placeholder="Optional" />
+            </div>
+          </div>
+          <div className="flex items-center justify-between rounded-lg border border-line-strong bg-secondary px-3 py-2 text-[13px]">
+            <span className="text-subtle">Total</span>
+            <b className="text-foreground tabular-nums">{money(result.total)}</b>
+          </div>
+          {error && <p className="caption-style text-danger">{error}</p>}
+          <DialogFooter className="-mx-6 -mb-5">
+            <Button variant="primary" size="md" type="submit" disabled={pending}>
+              {pending ? "Saving…" : "Save quote"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function QuoteHistory({ onLoad }: { onLoad: (quote: SavedQuote) => void }) {
+  const history = useQuoteStore((state) => state.history);
+  const live = useQuoteStore((state) => state.live);
+  const setStatus = useQuoteStore((state) => state.setStatus);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const copyQuote = async (quote: SavedQuote) => {
+    if (!quote.breakdown) return;
+    await navigator.clipboard.writeText(
+      quoteToText(quote.breakdown.input, quote.breakdown.result),
+    );
+    setCopiedId(quote.id);
+    setTimeout(() => setCopiedId(null), 1400);
+  };
+
+  return (
+    <div className="mx-auto flex w-full max-w-4xl flex-col gap-3">
+      <div className="border-border bg-card overflow-hidden rounded-xl border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Created</TableHead>
+              <TableHead>Trip</TableHead>
+              <TableHead>Customer</TableHead>
+              <TableHead className="text-right">Total</TableHead>
+              <TableHead className="text-right">Status</TableHead>
+              <TableHead className="w-20" />
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {history.map((quote) => (
+              <TableRow key={quote.id}>
+                <TableCell className="text-subtle whitespace-nowrap">
+                  {new Date(quote.createdAt).toLocaleString("en-GB", {
+                    day: "2-digit",
+                    month: "short",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </TableCell>
+                <TableCell>
+                  <span className="block max-w-56 truncate">
+                    {quoteSummary(quote)}
+                  </span>
+                  {quote.vehicle && (
+                    <span className="caption-style text-subtle">
+                      {quote.vehicle}
+                    </span>
+                  )}
+                </TableCell>
+                <TableCell className="text-soft">
+                  {quote.customerName || "—"}
+                </TableCell>
+                <TableCell className="text-right font-medium tabular-nums">
+                  {quote.totalCents != null
+                    ? money(quote.totalCents / 100)
+                    : "—"}
+                </TableCell>
+                <TableCell className="text-right">
+                  {live ? (
+                    <Select
+                      value={quote.status}
+                      onValueChange={(status) =>
+                        setStatus(quote.id, status as QuoteStatus)
+                      }
+                    >
+                      <SelectTrigger
+                        className="ml-auto h-7 w-28"
+                        aria-label="Quote status"
+                      >
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="draft">Draft</SelectItem>
+                        <SelectItem value="sent">Sent</SelectItem>
+                        <SelectItem value="accepted">Accepted</SelectItem>
+                        <SelectItem value="expired">Expired</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <Tag tone={STATUS_TONE[quote.status]} size="sm">
+                      {quote.status}
+                    </Tag>
+                  )}
+                </TableCell>
+                <TableCell className="text-right">
+                  <div className="flex justify-end gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => copyQuote(quote)}
+                      disabled={!quote.breakdown}
+                    >
+                      <CopyIcon aria-hidden className="size-3" />
+                      {copiedId === quote.id ? "Copied" : "Copy"}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onLoad(quote)}
+                      disabled={!quote.breakdown}
+                    >
+                      Load
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+            {history.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={6} className="text-subtle">
+                  {live
+                    ? "No saved quotes yet — build a quote and hit Save."
+                    : "Quote history needs a database connection."}
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+      <p className="caption-style text-subtle">
+        Quotes are internal estimates — sending does not create a LimoAnywhere
+        reservation.
+      </p>
+    </div>
   );
 }

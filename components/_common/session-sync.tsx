@@ -8,6 +8,7 @@ import { useGuideStore } from "@/stores/guide-store";
 import { useTasksStore } from "@/stores/tasks-store";
 import { useNotificationsStore } from "@/stores/notifications-store";
 import { useAdminStore } from "@/stores/admin-store";
+import { useQuoteStore } from "@/stores/quote-store";
 import { useSessionStore, type SessionData } from "@/stores/session-store";
 
 function hydrateStores() {
@@ -17,6 +18,7 @@ function hydrateStores() {
   void useTasksStore.getState().hydrate();
   void useNotificationsStore.getState().hydrate();
   void useAdminStore.getState().hydrate();
+  void useQuoteStore.getState().hydrate();
 }
 
 export default function SessionSync({ session }: { session: SessionData | null }) {

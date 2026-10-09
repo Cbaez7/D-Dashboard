@@ -62,7 +62,9 @@ $$;
 revoke all on function public.is_org_member(uuid) from public;
 revoke all on function public.is_org_admin(uuid) from public;
 revoke all on function public.current_org_id() from public;
+revoke execute on function public.is_org_member(uuid) from anon;
 grant execute on function public.is_org_member(uuid) to authenticated;
+revoke execute on function public.is_org_admin(uuid) from anon;
 grant execute on function public.is_org_admin(uuid) to authenticated;
 grant execute on function public.current_org_id() to authenticated;
 
