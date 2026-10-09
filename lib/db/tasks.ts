@@ -36,7 +36,7 @@ function mapTask(row: TaskRow, names: Map<string, string>): Task {
 
 export async function fetchTasks() {
   const supabase = createClient();
-  const [{ data }, names] = await Promise.all([
+  const [{ data, error }, names] = await Promise.all([
     supabase
       .from("tasks")
       .select(
@@ -46,6 +46,7 @@ export async function fetchTasks() {
       .limit(200),
     fetchProfileNames(),
   ]);
+  if (error) throw error;
   return ((data ?? []) as TaskRow[]).map((row) => mapTask(row, names));
 }
 

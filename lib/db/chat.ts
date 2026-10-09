@@ -46,7 +46,7 @@ const DEFAULT_CHANNELS = [
 
 export async function ensureDefaultChannels(orgId: string, userId: string) {
   const supabase = createClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("channels")
     .insert(
       DEFAULT_CHANNELS.map((channel) => ({
@@ -58,6 +58,7 @@ export async function ensureDefaultChannels(orgId: string, userId: string) {
       })),
     )
     .select("id");
+  if (error) throw error;
   for (const channel of data ?? []) {
     await supabase
       .from("channel_members")
@@ -68,7 +69,7 @@ export async function ensureDefaultChannels(orgId: string, userId: string) {
 export async function fetchChatData(userId: string, orgId: string) {
   const supabase = createClient();
 
-  const [channelsResult, membershipsResult, { data: messages }, names] =
+  const [channelsResult, membershipsResult, messagesResult, names] =
     await Promise.all([
       supabase
         .from("channels")
@@ -86,6 +87,10 @@ export async function fetchChatData(userId: string, orgId: string) {
       fetchProfileNames(),
     ]);
 
+  if (channelsResult.error) throw channelsResult.error;
+  if (membershipsResult.error) throw membershipsResult.error;
+  if (messagesResult.error) throw messagesResult.error;
+
   let channels = channelsResult.data;
   let memberships = membershipsResult.data;
 
@@ -95,11 +100,13 @@ export async function fetchChatData(userId: string, orgId: string) {
       .from("channels")
       .select("id, kind, name, topic, trip_id")
       .order("created_at", { ascending: true });
+    if (refetch.error) throw refetch.error;
     channels = refetch.data;
     const memberRefetch = await supabase
       .from("channel_members")
       .select("channel_id, last_read_at")
       .eq("user_id", userId);
+    if (memberRefetch.error) throw memberRefetch.error;
     memberships = memberRefetch.data;
   }
 
@@ -111,7 +118,7 @@ export async function fetchChatData(userId: string, orgId: string) {
   return {
     channels: ((channels ?? []) as ChannelRow[]).map(mapChannel),
     lastRead,
-    messages: ((messages ?? []) as MessageRow[]).map((row) =>
+    messages: ((messagesResult.data ?? []) as MessageRow[]).map((row) =>
       mapMessage(row, names),
     ),
   };

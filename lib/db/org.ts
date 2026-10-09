@@ -4,9 +4,10 @@ export type OrgMember = { id: string; name: string; role: string };
 
 export async function fetchProfileNames(): Promise<Map<string, string>> {
   const supabase = createClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("profiles")
     .select("id, display_name, first_name, last_name");
+  if (error) throw error;
 
   const map = new Map<string, string>();
   for (const row of data ?? []) {

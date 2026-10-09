@@ -92,7 +92,7 @@ function mapLeave(row: LeaveRow): LeaveRequest {
 export async function fetchClockSnapshot(userId: string, opsTz: string) {
   const supabase = createClient();
 
-  const [{ data: entries }, { data: leaves }, { data: shifts }] =
+  const [entriesResult, leavesResult, shiftsResult] =
     await Promise.all([
       supabase
         .from("clock_entries")
@@ -115,6 +115,13 @@ export async function fetchClockSnapshot(userId: string, opsTz: string) {
         .eq("status", "active")
         .order("version", { ascending: false }),
     ]);
+
+  if (entriesResult.error) throw entriesResult.error;
+  if (leavesResult.error) throw leavesResult.error;
+  if (shiftsResult.error) throw shiftsResult.error;
+  const entries = entriesResult.data;
+  const leaves = leavesResult.data;
+  const shifts = shiftsResult.data;
 
   const now = new Date();
   const opsToday = opsDateFmt(opsTz).format(now);

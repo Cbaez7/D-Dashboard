@@ -27,7 +27,7 @@ function mapPage(row: PageRow): SopPage {
 
 export async function fetchGuideData(userId: string) {
   const supabase = createClient();
-  const [{ data: pages }, { data: acks }] = await Promise.all([
+  const [pagesResult, acksResult] = await Promise.all([
     supabase
       .from("sop_pages")
       .select("id, title, slug, category, body, version, requires_ack, updated_at")
@@ -39,6 +39,11 @@ export async function fetchGuideData(userId: string) {
       .select("page_id, version")
       .eq("user_id", userId),
   ]);
+
+  if (pagesResult.error) throw pagesResult.error;
+  if (acksResult.error) throw acksResult.error;
+  const pages = pagesResult.data;
+  const acks = acksResult.data;
 
   const acknowledgments: Record<string, number> = {};
   for (const ack of acks ?? []) {
