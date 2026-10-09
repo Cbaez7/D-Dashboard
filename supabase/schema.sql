@@ -100,6 +100,7 @@ as $$
 $$;
 
 revoke all on function public.is_channel_member(uuid) from public;
+revoke execute on function public.is_channel_member(uuid) from anon;
 grant execute on function public.is_channel_member(uuid) to authenticated;
 
 create or replace function public.handle_new_user()
