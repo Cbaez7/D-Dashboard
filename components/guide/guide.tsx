@@ -146,7 +146,7 @@ export default function Guide() {
               </div>
             </div>
             <ScrollArea className="min-h-0 flex-1">
-              <div className="mx-auto w-full max-w-2xl px-4 py-6">
+              <div className="w-full px-6 py-6">
                 <SopBody body={selected.body} />
               </div>
             </ScrollArea>
