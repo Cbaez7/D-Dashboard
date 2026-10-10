@@ -34,9 +34,9 @@ export default function NotificationItem({
         size="none"
         onClick={onSelect}
         data-unread={unread}
-        className="p-3 data-[unread=true]:bg-white/2 data-[unread=true]:hover:bg-white/5"
+        className="p-3 data-[unread=true]:bg-[var(--wash-4)] data-[unread=true]:hover:bg-[var(--wash-6)]"
       >
-        <span className="bg-muted relative mt-px flex size-8 shrink-0 items-center justify-center rounded-lg shadow-[0px_0px_0px_1px_#232323]">
+        <span className="bg-muted relative mt-px flex size-8 shrink-0 items-center justify-center rounded-lg shadow-[0px_0px_0px_1px_var(--ring-soft)]">
           <Icon aria-hidden className="text-soft size-4" />
         </span>
         <span className="flex min-w-0 flex-1 flex-col gap-2 pr-4">
@@ -49,7 +49,7 @@ export default function NotificationItem({
             {notification.message}
           </span>
           {notification.quote && (
-            <span className="p-style border-line-strong text-soft block rounded-lg border bg-white/3 px-3 py-2">
+            <span className="p-style border-line-strong text-soft block rounded-lg border bg-[var(--wash-4)] px-3 py-2">
               {notification.quote}
             </span>
           )}

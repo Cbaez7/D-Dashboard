@@ -4,10 +4,14 @@ import { SUPABASE_CONFIGURED } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/client";
 import {
   fetchNotifications,
+  mapNotification,
   markAllNotificationsRead,
   markNotificationRead,
+  type NotificationRow,
 } from "@/lib/db/notifications";
+import { playDing } from "@/lib/notify-sound";
 import { useSessionStore } from "@/stores/session-store";
+import { useToastStore } from "@/stores/toast-store";
 
 type NotificationsState = {
   hydrated: boolean;
@@ -46,7 +50,27 @@ export const useNotificationsStore = create<NotificationsState>()((set, get) => 
             table: "notifications",
             filter: `user_id=eq.${userId}`,
           },
-          async () => {
+          async (payload) => {
+            if (payload.eventType === "INSERT") {
+              const notification = mapNotification(
+                payload.new as NotificationRow,
+              );
+              set((state) => ({
+                items: [
+                  notification,
+                  ...state.items.filter((item) => item.id !== notification.id),
+                ],
+              }));
+              useToastStore.getState().push({
+                kind: notification.kind,
+                title: notification.message,
+                body: notification.quote,
+                surface: notification.surface,
+                notificationId: notification.id,
+              });
+              playDing();
+              return;
+            }
             set({
               items: await fetchNotifications(
                 useSessionStore.getState().userId,

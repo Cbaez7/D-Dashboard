@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/client";
 import type { Notification, NotificationKind } from "@/data/notifications";
 import type { SurfaceId } from "@/stores/app-store";
 
-type NotificationRow = {
+export type NotificationRow = {
   id: number;
   kind: NotificationKind;
   title: string;

@@ -3,6 +3,7 @@
 import AppHeader from "@/components/_common/app-header";
 import CommandMenu from "@/components/_common/command-menu";
 import ProfileSheet from "@/components/_common/profile-sheet";
+import NotificationToasts from "@/components/_common/notification-toasts";
 import Dispatch from "@/components/dispatch/dispatch";
 import LiveMap from "@/components/livemap/livemap";
 import Inbox from "@/components/inbox/inbox";
@@ -42,6 +43,7 @@ export default function AppShell() {
       <Surface />
       <ProfileSheet />
       <CommandMenu />
+      <NotificationToasts />
     </div>
   );
 }
