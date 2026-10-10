@@ -7,7 +7,7 @@ import { SURFACE_GROUPS, surfaceById } from "./nav";
 import { useAppStore } from "@/stores/app-store";
 import { useChatStore } from "@/stores/chat-store";
 import { useSessionStore } from "@/stores/session-store";
-import Image from "next/image";
+import Logo from "@/public/assets/images/_common/logo.svg";
 import UserPlusIcon from "@/public/assets/images/_common/user-plus.svg";
 import HelpIcon from "@/public/assets/images/_common/help.svg";
 import PanelLeftIcon from "@/public/assets/images/_common/panel-left.svg";
@@ -40,13 +40,7 @@ export default function SidebarContent() {
   return (
     <div className="flex h-full min-h-0 flex-col">
       <div className="border-sidebar-border bg-sidebar-accent flex shrink-0 items-center gap-2 border-b p-3">
-        <Image
-          src="/assets/images/_common/logo.png"
-          alt=""
-          width={101}
-          height={101}
-          className="size-8 shrink-0"
-        />
+        <Logo aria-hidden className="size-8 shrink-0 overflow-visible" />
         <div className="flex min-w-0 flex-col gap-1">
           <span className="lead-style block truncate font-medium tracking-[-0.01em]">
             BNG Desk
