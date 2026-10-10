@@ -245,13 +245,17 @@ await seedIfEmpty("clients", "clients", [
     email: "marcus.chen@asana.com",
     phone: "+1 (650) 555-0187",
     company: "Asana",
+    vip: false,
     tags: ["corporate"],
+    notes: "",
   },
   {
     org_id: orgId,
     name: "Priya Raman",
     email: "priya@example.org",
+    vip: false,
     tags: ["walk-in"],
+    notes: "",
   },
 ]);
 
