@@ -31,14 +31,14 @@ export default function RootLayout({
       className={geist.variable}
       suppressHydrationWarning
     >
-      <head>
+      <head />
+      <body className="relative z-0 font-sans antialiased">
         <script
+          suppressHydrationWarning
           dangerouslySetInnerHTML={{
             __html: `history.scrollRestoration="manual";${SIDEBAR_WIDTH_SCRIPT}`,
           }}
         />
-      </head>
-      <body className="relative z-0 font-sans antialiased">
         <ScrollToTop />
         {children}
       </body>

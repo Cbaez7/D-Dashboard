@@ -32,6 +32,7 @@ import {
 import Tag from "@/components/_ui/tag";
 import { cn } from "@/lib/utils";
 import { useQuoteStore } from "@/stores/quote-store";
+import { useClientsStore } from "@/stores/clients-store";
 import type { QuoteStatus, SavedQuote } from "@/lib/db/quotes";
 import {
   AIRPORT_SERVICES,
@@ -39,7 +40,6 @@ import {
   type BookingZone,
   type ClientType,
   CORPORATE,
-  CORPORATE_ACCOUNTS,
   FEES,
   HOURLY_RATES,
   P2P_RULES,
@@ -170,6 +170,16 @@ export default function Quote() {
   const autoTollRef = useRef<TollKey | null>(null);
   const greeterWasAuto = useRef(false);
   const live = useQuoteStore((state) => state.live);
+  const liveAccounts = useClientsStore((state) => state.accounts);
+  const corporateMap = useMemo(() => {
+    const map: Record<string, string> = { ...CORPORATE };
+    for (const account of liveAccounts) map[account.name] = account.notes;
+    return map;
+  }, [liveAccounts]);
+  const corporateNames = useMemo(
+    () => Object.keys(corporateMap).sort(),
+    [corporateMap],
+  );
 
   const input: QuoteInput = {
     clientType,
@@ -397,7 +407,7 @@ export default function Quote() {
                         <SelectValue placeholder="Select corporate client" />
                       </SelectTrigger>
                       <SelectContent>
-                        {CORPORATE_ACCOUNTS.map((a) => (
+                        {corporateNames.map((a) => (
                           <SelectItem key={a} value={a}>
                             {a}
                           </SelectItem>
@@ -407,7 +417,7 @@ export default function Quote() {
                   </Field>
                   {corporate.account && (
                     <pre className="mt-3 rounded-lg border border-line-strong bg-secondary p-3 font-sans text-[12px] leading-relaxed whitespace-pre-wrap text-soft">
-                      {CORPORATE[corporate.account]}
+                      {corporateMap[corporate.account]}
                     </pre>
                   )}
                 </Section>

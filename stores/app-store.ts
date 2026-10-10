@@ -6,6 +6,7 @@ export type SurfaceId =
   | "inbox"
   | "calls"
   | "chat"
+  | "clients"
   | "quote"
   | "guide"
   | "clock"

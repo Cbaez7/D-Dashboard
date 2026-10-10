@@ -213,4 +213,115 @@ if (missing.length) {
   console.log("integration_state: all keys exist, skipping");
 }
 
+const accountsData = JSON.parse(
+  readFileSync(resolve(process.cwd(), "lib/quote/accounts.json"), "utf8"),
+);
+const accountRows = Object.entries(accountsData).map(([name, notes]) => ({
+  org_id: orgId,
+  name,
+  notes,
+}));
+const { error: accErr } = await admin
+  .from("accounts")
+  .upsert(accountRows, { onConflict: "org_id,name" });
+if (accErr) throw accErr;
+console.log(`accounts: upserted ${accountRows.length}`);
+
+await seedIfEmpty("clients", "clients", [
+  {
+    org_id: orgId,
+    name: "Elena Vargas",
+    email: "elena.vargas@example.com",
+    phone: "+1 (415) 555-0142",
+    company: "Veeam",
+    vip: true,
+    tags: ["corporate", "frequent"],
+    notes:
+      "Prefers quiet ride, no radio. Usually SFO arrivals — gate code required at dropoff.",
+  },
+  {
+    org_id: orgId,
+    name: "Marcus Chen",
+    email: "marcus.chen@asana.com",
+    phone: "+1 (650) 555-0187",
+    company: "Asana",
+    tags: ["corporate"],
+  },
+  {
+    org_id: orgId,
+    name: "Priya Raman",
+    email: "priya@example.org",
+    tags: ["walk-in"],
+  },
+]);
+
+const { data: elena } = await admin
+  .from("clients")
+  .select("id")
+  .eq("org_id", orgId)
+  .eq("email", "elena.vargas@example.com")
+  .maybeSingle();
+
+if (elena) {
+  const veeam = await admin
+    .from("accounts")
+    .select("id")
+    .eq("org_id", orgId)
+    .eq("name", "Veeam & NetJets")
+    .maybeSingle();
+  if (veeam.data) {
+    await admin
+      .from("clients")
+      .update({ account_id: veeam.data.id })
+      .eq("id", elena.id);
+  }
+
+  await seedIfEmpty("client_addresses", "client_addresses", [
+    {
+      org_id: orgId,
+      client_id: elena.id,
+      label: "Home",
+      address: "1240 Broadway St, San Francisco, CA 94109",
+    },
+    {
+      org_id: orgId,
+      client_id: elena.id,
+      label: "Office",
+      address: "400 Concar Dr, San Mateo, CA 94402",
+    },
+  ], "client_id", elena.id);
+
+  await seedIfEmpty("client_notes", "client_notes", [
+    {
+      org_id: orgId,
+      client_id: elena.id,
+      author_id: user.id,
+      body: "Rebooked for the quarterly board meeting — always asks for the same chauffeur if available.",
+    },
+  ], "client_id", elena.id);
+
+  const { count: quoteCount } = await admin
+    .from("quotes")
+    .select("id", { count: "exact", head: true })
+    .eq("org_id", orgId)
+    .eq("customer_email", "elena.vargas@example.com");
+  if (!quoteCount) {
+    const { error: quoteErr } = await admin.from("quotes").insert({
+      org_id: orgId,
+      created_by: user.id,
+      customer_name: "Elena Vargas",
+      customer_email: "elena.vargas@example.com",
+      trip_type: "Airport",
+      vehicle: "Sedan",
+      pickup: { city: "San Francisco" },
+      dropoff: { city: "SFO" },
+      breakdown: { seeded: true, note: "Sample quote for CRM timeline" },
+      total_cents: 18500,
+      status: "accepted",
+    });
+    if (quoteErr) throw quoteErr;
+    console.log("quotes: seeded sample quote for Elena Vargas");
+  }
+}
+
 console.log("content seed complete");

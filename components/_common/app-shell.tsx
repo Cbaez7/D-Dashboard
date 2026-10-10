@@ -8,6 +8,7 @@ import LiveMap from "@/components/livemap/livemap";
 import Inbox from "@/components/inbox/inbox";
 import Calls from "@/components/calls/calls";
 import Chat from "@/components/chat/chat";
+import Clients from "@/components/clients/clients";
 import Quote from "@/components/quote/quote";
 import Guide from "@/components/guide/guide";
 import Clock from "@/components/clock/clock";
@@ -20,6 +21,7 @@ const SURFACE_COMPONENTS: Record<SurfaceId, () => React.JSX.Element> = {
   inbox: Inbox,
   calls: Calls,
   chat: Chat,
+  clients: Clients,
   quote: Quote,
   guide: Guide,
   clock: Clock,

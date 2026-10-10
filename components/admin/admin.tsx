@@ -32,8 +32,11 @@ import {
 } from "@/components/_ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/_ui/tabs";
 import UserPlusIcon from "@/public/assets/images/_common/user-plus.svg";
+import PlusIcon from "@/public/assets/images/_common/plus.svg";
 import { inviteMember } from "@/app/actions/admin";
 import { useAdminStore } from "@/stores/admin-store";
+import { useClientsStore } from "@/stores/clients-store";
+import type { Account } from "@/lib/db/clients";
 import { useSessionStore } from "@/stores/session-store";
 import type { IntegrationState, Member, Vehicle } from "@/lib/db/admin";
 
@@ -89,6 +92,7 @@ export default function Admin() {
       >
         <TabsList className="border-border shrink-0 border-b px-4">
           <TabsTrigger value="team">Team</TabsTrigger>
+          <TabsTrigger value="accounts">Accounts</TabsTrigger>
           <TabsTrigger value="integrations">Integrations</TabsTrigger>
           <TabsTrigger value="activity">Activity</TabsTrigger>
           <TabsTrigger value="fleet">Fleet</TabsTrigger>
@@ -97,6 +101,9 @@ export default function Admin() {
           <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 p-4">
             <TabsContent value="team">
               <Team />
+            </TabsContent>
+            <TabsContent value="accounts">
+              <Accounts />
             </TabsContent>
             <TabsContent value="integrations">
               <Integrations />
@@ -169,6 +176,148 @@ function Team() {
         </Table>
       </div>
     </div>
+  );
+}
+
+function Accounts() {
+  const accounts = useClientsStore((state) => state.accounts);
+  const live = useClientsStore((state) => state.live);
+
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex items-center justify-between">
+        <h2>Corporate accounts</h2>
+        {live && <AccountDialog mode="create" />}
+      </div>
+      <div className="divide-border border-border bg-card divide-y rounded-xl border">
+        {accounts.map((account) => (
+          <div key={account.id} className="flex items-center gap-4 px-4 py-3">
+            <div className="min-w-0 flex-1">
+              <p className="text-[14px] leading-none font-medium">
+                {account.name}
+              </p>
+              <p className="caption-style text-subtle mt-1 truncate">
+                {account.billingEmail
+                  ? `Billing: ${account.billingEmail}`
+                  : "No billing email"}
+                {account.notes ? ` — ${account.notes}` : ""}
+              </p>
+            </div>
+            <AccountDialog mode="edit" account={account} />
+          </div>
+        ))}
+        {accounts.length === 0 && (
+          <p className="caption-style text-subtle px-4 py-3">
+            {live
+              ? "No accounts yet — the quoter still uses the built-in rate cards."
+              : "Accounts need a database connection."}
+          </p>
+        )}
+      </div>
+      <p className="caption-style text-subtle">
+        Rate-card notes are what dispatchers read in the quoter — edits apply
+        everywhere the account appears.
+      </p>
+    </div>
+  );
+}
+
+function AccountDialog({
+  mode,
+  account,
+}: {
+  mode: "create" | "edit";
+  account?: Account;
+}) {
+  const saveAccount = useClientsStore((state) => state.saveAccount);
+  const [open, setOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [pending, startTransition] = useTransition();
+
+  const submit = (formData: FormData) => {
+    const fields = {
+      id: account?.id,
+      name: String(formData.get("name") ?? "").trim(),
+      billingEmail: String(formData.get("billingEmail") ?? "").trim(),
+      notes: String(formData.get("notes") ?? "").trim(),
+    };
+    setError(null);
+    startTransition(async () => {
+      const ok = await saveAccount(fields);
+      if (!ok) {
+        setError("Could not save the account — try again.");
+        return;
+      }
+      setOpen(false);
+    });
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        {mode === "create" ? (
+          <Button variant="secondary" size="md">
+            <PlusIcon aria-hidden className="size-3.5" />
+            Add account
+          </Button>
+        ) : (
+          <Button variant="ghost" size="sm">
+            Edit
+          </Button>
+        )}
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>
+            {mode === "create" ? "Add account" : `Edit ${account?.name}`}
+          </DialogTitle>
+          <DialogDescription>
+            {mode === "create"
+              ? "Creates a corporate account with a rate-card note."
+              : "Updates the account; new notes reach the quoter on save."}
+          </DialogDescription>
+        </DialogHeader>
+        <form action={submit} className="flex flex-col gap-4 px-6 py-5">
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="account-name">Name</Label>
+            <Input
+              id="account-name"
+              name="name"
+              required
+              defaultValue={account?.name}
+              placeholder="Veeam & NetJets"
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="account-billing">Billing email</Label>
+            <Input
+              id="account-billing"
+              name="billingEmail"
+              type="email"
+              defaultValue={account?.billingEmail ?? ""}
+              placeholder="Optional"
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="account-notes">Rate-card notes</Label>
+            <textarea
+              id="account-notes"
+              name="notes"
+              rows={5}
+              defaultValue={account?.notes}
+              placeholder="Airport rules, minimums, who to bill — what a dispatcher needs to quote this account."
+              className="border-line-strong bg-secondary placeholder:text-subtle focus-visible:border-ring text-foreground ease-power3-out w-full min-w-0 rounded-lg border px-3 py-2 text-[14px] leading-normal outline-none transition-[border-color] duration-150"
+            />
+          </div>
+          {error && <p className="caption-style text-danger">{error}</p>}
+          <DialogFooter className="-mx-6 -mb-5">
+            <Button variant="primary" size="md" type="submit" disabled={pending}>
+              {pending ? "Saving…" : mode === "create" ? "Add account" : "Save"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }
 

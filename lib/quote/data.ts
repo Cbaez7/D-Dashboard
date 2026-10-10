@@ -1,3 +1,5 @@
+import accountsData from "./accounts.json";
+
 export type Vehicle = "Sedan" | "SUV" | "Luxury" | "Sprinter Van";
 export type ClientType = "Affiliate" | "Walk-in" | "Corporate";
 export type ServiceType = "Airport" | "P2P" | "Hourly";
@@ -288,64 +290,6 @@ export const TOLL_LABELS: Record<TollKey, string> = {
 
 export const ROUTE_GARAGE = "1660 S Amphlett Blvd, San Mateo, CA 94402";
 
-export const CORPORATE: Record<string, string> = {
-  Asana:
-    "SONALEE — NON-PRIVATE\nRate: $130/hr\nMinimum: 2 hours\nGratuity: 20%\nSTC: 5%\nAdmin Fee: 5%\nAll Sonalee airport pickups are Curbside.\n\nPrivate Sonalee trips: check Sonalee Parekh — Private.",
-  "Coley Andrews":
-    "SUV: $130/hr\nSedan: $125/hr\nMinimum: 2 hours\nGratuity: 20%\nSTC: 5%\nAirport Fee: Curbside $5.50 / Meet & Greet $20",
-  "Daniel Herling":
-    "Petaluma → SFO (Curbside): $255.50\nPetaluma → SFO (Meet & Greet): $270\nPetaluma → San Francisco: $250\nDo not add tolls.",
-  "Danielle Udolf":
-    "Home → SFO: $160 + 20% gratuity\nSFO → Home: $160 + 20% gratuity\nJose's rate: $140\nHome: 1214 Sharon Park Dr, Menlo Park, CA 94025",
-  "Deb Richardson":
-    "SFO → Sausalito: $165 flat + 20% gratuity + $5.50 airport fee\nSausalito → SFO: $165 flat + 20% gratuity + $8 toll + $5.50 airport fee",
-  "Eric Reynolds / Stacey Grier":
-    "SFO → Oakland: 2 hours × $85 + 20% gratuity + $5.50 airport fee\nSFO → Orinda: 2 hours × $85 + 20% gratuity + $5.50 airport fee\nOakland → SFO: 2 hours × $85 + 20% gratuity + $5.50 airport fee\nOrinda → SFO: 2 hours × $85 + 20% gratuity + $5.50 airport fee\nOakland → Oakland: 2 hours × $85 + 20% gratuity\nCurbside pickup for Eric Reynolds.\nCurbside for Stacey G.",
-  "Esalen Institute":
-    "SFO/SF → Esalen Institute\nSedan: $820\nSUV: $885\n\nSJC → Esalen Institute\nSedan: $675\nSUV: $735\n\nMRY → Esalen Institute\nSedan: $580\nSUV: $630\n\nJovana Clarke / Nora Teter Special:\nSFO: Sedan $695 / SUV $750\nSJC & MRY: Sedan $595 / SUV $650\n\nContact Max Gaenslen for SJC routes.",
-  "ETB Tours":
-    "Hourly:\nSedan: $85/hr\nSUV: $105/hr\nSprinter: $145/hr\n\nSFO → SF:\nSedan $125 / SUV $145 / Sprinter $425\n\nSF → SF:\nSedan $99 / SUV $125 / Sprinter $425\n\nSF → SFO:\nSedan $99 / SUV $125 / Sprinter $425\n\nAdd 6% gas surcharge.\nNO airport fees.\nAny other trips: use Affiliate rate + 10% gratuity.\nInternational flights: 45 minutes after flight lands.",
-  Fortis:
-    "Remove gratuity from their bill.\nTo Airport: add $5.50 airport fee.\nFrom Airport: add $20 airport fee.\n\nHourly Rates:\nSedan / SUV / Luxury: $125/hr\nSprinter: $180/hr\n\nMinimums:\nIf not listed: 2-hour minimum.\nSprinter: 4-hour minimum.\nONLY MOE YOUSRI: $135/hr, minimum 3 hours.\n\nSFO ROUTES — BILLABLE HOURS:\nSan Francisco: 2\nPalo Alto: 2\nSan Jose: 2.5\nMenlo Park: 2\nWoodside: 2\nSan Mateo: 2\nCupertino: 2.25\nLos Gatos: 3\nSausalito: 3\nTiburon: 3\nOakland: 3\nNapa: 5\n\nSJC ROUTES — BILLABLE HOURS:\nSan Francisco: 3\nSan Jose: 2\nSunnyvale: 2\nMenlo Park: 2\nWoodside: 2\nSan Mateo: 2.25\nCupertino: 2\nLos Gatos: 2\nMountain View: 2\nMonterey: 4\nSanta Cruz: 3\nNapa: 6\n\nApply a 10% discount on trips of 5+ hours for the same principal/team on multiple consecutive days. Does not apply for events.",
-  "Jonathan Howe":
-    "SF → SF\nFlat Rate: $100\nGratuity: 20%\nGas Surcharge: $6\nTotal: $126",
-  "Kevin Jacobson":
-    "Oakland ↔ House (Danville): $180 flat + 20% gratuity\nSFO → House: $200 flat + 20% gratuity + $5.50 airport fee\nHouse → SFO: $200 flat + 20% gratuity + $5.50 airport fee + $7 toll",
-  "Kevin Moss": "SFO → San Carlos: $110\nSan Carlos → SFO: $110",
-  "King Tut":
-    "Sedan: $90/hr\nSUV: $100/hr\nLuxury Sedan: $125/hr\nLuxury SUV: $125/hr",
-  "Lorna Bridge":
-    "Hourly Rate: $155/hr\nGratuity: 20%\nSTC: 5%\nAdmin Fee: 5%",
-  "Luc Bellet":
-    "SFO → San Francisco: 2 × $90\nSan Francisco → SFO: 2 × $90\nGratuity: 20%\nSTC: 10%\nAirport Fee: $5.50\nCurbside",
-  Luke: "SFO → Woodside: $169\nWoodside → SFO: $169",
-  "Michael Kives":
-    "Sedan: $120/hr\nSUV: $130/hr\nMinimum: 2 hours\nGratuity: 20%\nSTC: 5%\nAdmin Fee: 5%",
-  "Nayaki Nayyar":
-    "From Airport: $168.50 flat\nGratuity: 20%\nSTC: 5%\nNayaki's House: 2510 Bentley Ridge Dr, San Jose, CA 95138\n\nTo Airport rate is not supplied in the spreadsheet.",
-  "Pamela Poppert":
-    "Palo Alto ↔ Portola Valley:\nHourly: $155/hr (2-hour minimum)\nFlat: $150\n\nPalo Alto → SFO: $177 + Curbside $5.50\nSFO → Palo Alto: $180 + Meet & Greet $20\n\nGratuity: 20%\nSTC: 5%\nAdmin Fee: 5%\nContact: (805) 455-3496",
-  Paragonix:
-    "Flat Base Rate: $300\nAdd: $0.70 per trip mile\nCalculate distance GTG (Garage-to-Garage), then add it.",
-  "Rich Puccio":
-    "ONLY SPECIAL PRICE:\nSan Jose → Santa Clara\nSedan: $115",
-  "Ring Central":
-    "Gratuity: 20%\nSTC: 5%\nFrom Airport: $20 airport fee\nTo Airport: $5 parking fee\nHourly: $135\n\nSPECIAL RATES:\nSonalee & Tarek House → SFO: $289.50 + 20% gratuity + 5% STC + $5.50\nRC → SFO: $180 + 20% gratuity + 5% STC + $5.50\nSF → Los Gatos: $295.50 + 20% gratuity + 5% STC\nSF → SFO: $195.50 + 20% gratuity + 5% STC + $5.50\nRC → SF: $215 + 20% gratuity + 5% STC + $5.50\nSFO → Vlad's: $198.60 + 20% gratuity + 5% STC + $5.50\nSFO → John: $225 + 20% gratuity + 5% STC + $5.50\nVlad's → SF: $189.50 + 20% gratuity + 5% STC + $5.50\nVlad Home → OAK: $258.73 + 20% gratuity + 5% STC",
-  "Securiti.Ai — Rehan Jalil":
-    "All vehicles: $125/hr\nMinimum: 2 hours\nGratuity: 20%\nSTC: 5%\nAirport Fee: Per pickup option\n\nSend confirmations to n.dominguez@veeam.com",
-  Securonix:
-    "Gratuity: 20%\nSTC: 6%\nFrom Airport: $20 airport fee\nTo Airport: $5 parking fee\n\nFLAT RATES:\nSan Francisco: $168.50\nDallas: $165.50\nNew York: $175.50\nLas Vegas: $160.50\nKansas: $140\nSan Jose → SJC: $265.50\nSan Jose → SFO: $275\n\nSan Jose → SF: Hourly rate\n\nHourly:\nSedan: $105/hr\nSUV: $125/hr\nPlus 20% gratuity + 6% STC",
-  "Sonalee Parekh — Private":
-    "PRIVATE TRIPS:\n2 hours × $130/hr\n20% standard gratuity\n15% discount\n5% STC\n5% Admin Fee\n\nPrivate trips are from her house to airport and vice versa.\nHome: 135 Wilder Ave, Los Gatos, CA 95030\n\nContacts:\nSonalee.hall@gmail.com\nmichelle.chester@sentinelone.com\n\nDriver instruction:\nDrivers must contact Sonalee directly, not her assistant.\nPhone: 408-623-5776\n\nNon-private: check Asana.",
-  "Terri Machado":
-    "SFO ↔ San Jose Special:\nSedan: $275\nSUV: $300\n\nHourly:\nSedan: $120/hr\nSUV: $130/hr\n\nMinimum: 2 hours\nGratuity: 20%\nSTC: 5%\nAdmin Fee: 5%\nAirport Fee: Curbside $5.50 / Meet & Greet $20",
-  "Todd Speece":
-    "Home → SFO: $230\nSFO → Home: $230\nTodd's Home: 574 Summit Ave, Mill Valley, CA 94941\n\nFRAGRANCE-FREE VEHICLE REQUIRED:\nNo cologne or strong fragrance. Vehicle must be scent-free due to an autoimmune condition.",
-  Transmedics: "Sedan: $90/hr\nSUV: $110/hr\nMinimum: 2 hours",
-  "UPC Lerone Lang":
-    "SFO → Kentfield: $210\nKentfield → SFO: $195.50\nDo not add toll fees.",
-  "Veeam & NetJets":
-    "Gratuity: 20%\nSTC: 5%\nFrom Airport / Meet & Greet: $20\nTo Airport / Curbside: $5.50\n\nHourly:\nSedan: $125/hr — 2-hour minimum\nSUV: $130/hr — 2-hour minimum\nVan: $155/hr — 3-hour minimum\n\nSan Francisco — Niraj + Dustin only:\nAll-in rate: 2 hours × $170. Curbside for Niraj.\n\nSeattle:\nAny transfer: 2-hour minimum.\n\nAtlanta / Alpharetta, GA:\nSedan: $185.50\nSUV: $212.50 — Veeam CEO / Anand only; 2 hours + 20% gratuity + 5% STC.\n\nANAND — KBFI ↔ Clyde Hill:\nSedan: $155 flat. Farm out to Seattle Black Limo (Sedan $99.12). Our rate: $193.75.\n\nKayla — Los Gatos → SJC: $177.",
-};
-
+export const CORPORATE: Record<string, string> = accountsData;
 export const CORPORATE_ACCOUNTS = Object.keys(CORPORATE).sort();
+

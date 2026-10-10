@@ -9,6 +9,7 @@ import { useTasksStore } from "@/stores/tasks-store";
 import { useNotificationsStore } from "@/stores/notifications-store";
 import { useAdminStore } from "@/stores/admin-store";
 import { useQuoteStore } from "@/stores/quote-store";
+import { useClientsStore } from "@/stores/clients-store";
 import { useSessionStore, type SessionData } from "@/stores/session-store";
 
 function hydrateStores() {
@@ -19,6 +20,7 @@ function hydrateStores() {
   void useNotificationsStore.getState().hydrate();
   void useAdminStore.getState().hydrate();
   void useQuoteStore.getState().hydrate();
+  void useClientsStore.getState().hydrate();
 }
 
 export default function SessionSync({ session }: { session: SessionData | null }) {
