@@ -147,15 +147,13 @@ export default function Guide() {
             </div>
             <ScrollArea className="min-h-0 flex-1">
               <div className="mx-auto w-full max-w-2xl px-4 py-6">
-                <p className="text-soft text-[14px] leading-relaxed whitespace-pre-wrap">
-                  {selected.body}
-                </p>
+                <SopBody body={selected.body} />
               </div>
             </ScrollArea>
           </>
         ) : (
           <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-2 p-6 text-center">
-            <span className="bg-muted flex size-12 items-center justify-center rounded-full shadow-[0px_0px_0px_1px_#232323]">
+            <span className="bg-muted flex size-12 items-center justify-center rounded-full shadow-[0px_0px_0px_1px_var(--ring-soft)]">
               <GuideIcon aria-hidden className="text-soft size-5" />
             </span>
             <span className="lead-style mt-2 block font-medium">Guide</span>
@@ -258,5 +256,103 @@ function EditPageDialog({ page }: { page: SopPage }) {
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function renderInline(text: string) {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+  return parts.map((part, i) =>
+    part.startsWith("**") && part.endsWith("**") ? (
+      <strong key={i} className="font-semibold text-foreground">
+        {part.slice(2, -2)}
+      </strong>
+    ) : (
+      part
+    ),
+  );
+}
+
+function SopBody({ body }: { body: string }) {
+  const lines = body.split("\n");
+  const blocks: { type: string; lines: string[] }[] = [];
+  for (const line of lines) {
+    const trimmed = line.trim();
+    let type = "p";
+    if (trimmed === "") type = "gap";
+    else if (trimmed.startsWith("### ")) type = "h4";
+    else if (trimmed.startsWith("## ")) type = "h3";
+    else if (trimmed.startsWith("> ")) type = "callout";
+    else if (trimmed.startsWith("- ")) type = "li";
+    else if (trimmed.includes(" | ")) type = "row";
+    const last = blocks[blocks.length - 1];
+    if (last && last.type === type && type !== "gap" && type !== "p") {
+      last.lines.push(trimmed);
+    } else {
+      blocks.push({ type, lines: [trimmed] });
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-3 text-[14px] leading-relaxed text-soft">
+      {blocks.map((block, i) => {
+        if (block.type === "gap") return null;
+        if (block.type === "h3")
+          return (
+            <h3 key={i} className="mt-4 text-[15px] font-semibold text-foreground first:mt-0">
+              {block.lines.map((l) => renderInline(l.replace(/^## /, "")))}
+            </h3>
+          );
+        if (block.type === "h4")
+          return (
+            <h4 key={i} className="mt-3 text-[13px] font-semibold tracking-wide text-foreground uppercase">
+              {block.lines.map((l) => renderInline(l.replace(/^### /, "")))}
+            </h4>
+          );
+        if (block.type === "callout")
+          return (
+            <div key={i} className="rounded-lg border border-line-strong bg-secondary px-3 py-2 text-[13px]">
+              {block.lines.map((l, j) => (
+                <p key={j}>{renderInline(l.replace(/^> /, ""))}</p>
+              ))}
+            </div>
+          );
+        if (block.type === "li")
+          return (
+            <ul key={i} className="flex flex-col gap-1 pl-1">
+              {block.lines.map((l, j) => (
+                <li key={j} className="flex gap-2">
+                  <span aria-hidden className="text-subtle">-</span>
+                  <span className="min-w-0 flex-1">{renderInline(l.replace(/^- /, ""))}</span>
+                </li>
+              ))}
+            </ul>
+          );
+        if (block.type === "row")
+          return (
+            <div key={i} className="overflow-x-auto rounded-lg border border-line-strong bg-secondary">
+              <table className="w-full text-[12.5px]">
+                <tbody>
+                  {block.lines.map((l, j) => (
+                    <tr key={j} className="border-line-strong border-b last:border-b-0">
+                      {l.split(" | ").map((cell, k) => (
+                        <td key={k} className="px-3 py-1.5 align-top whitespace-nowrap">
+                          {renderInline(cell)}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          );
+        return (
+          <p key={i} className="whitespace-pre-wrap">
+            {block.lines.map((l, j) => (
+              <span key={j}>{renderInline(l)}{j < block.lines.length - 1 ? " " : ""}</span>
+            ))}
+          </p>
+        );
+      })}
+    </div>
   );
 }
