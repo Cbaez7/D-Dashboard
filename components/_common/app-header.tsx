@@ -22,7 +22,7 @@ export default function AppHeader() {
 
   return (
     <header className="shrink-0">
-      <div className="flex items-center justify-between gap-2 px-4 py-[14px]">
+      <div className="flex h-14 items-center justify-between gap-2 px-4">
         <div className="flex min-w-0 items-center gap-2">
           <Button
             variant="secondary"

@@ -56,8 +56,8 @@ export default function Guide() {
   return (
     <section className="flex min-h-0 min-w-0 flex-1">
       <aside className="border-border flex w-64 shrink-0 flex-col border-r">
-        <div className="border-border border-b p-3">
-          <div className="relative">
+        <div className="border-border flex h-14 shrink-0 items-center border-b px-3">
+          <div className="relative w-full">
             <SearchIcon
               aria-hidden
               className="text-subtle pointer-events-none absolute top-1/2 left-3 size-3.5 -translate-y-1/2"
@@ -119,7 +119,7 @@ export default function Guide() {
       <div className="flex min-w-0 flex-1 flex-col">
         {selected ? (
           <>
-            <div className="border-border flex shrink-0 items-center gap-3 border-b px-4 py-3">
+            <div className="border-border flex h-14 shrink-0 items-center gap-3 border-b px-4">
               <div className="min-w-0">
                 <h2 className="truncate">{selected.title}</h2>
                 <p className="caption-style text-subtle mt-1">

@@ -23,7 +23,7 @@ export default function SidebarCollapsed() {
 
   return (
     <div className="flex h-full min-h-0 flex-col items-center">
-      <div className="border-sidebar-border flex h-[57px] w-full shrink-0 items-center justify-center border-b">
+      <div className="border-sidebar-border flex h-14 w-full shrink-0 items-center justify-center border-b">
         <button
           type="button"
           aria-label="Expand sidebar"

@@ -333,7 +333,7 @@ export default function Quote() {
 
   return (
     <section className="flex min-h-0 min-w-0 flex-1 flex-col">
-      <div className="border-border flex items-center justify-between gap-2 border-b px-4 py-2.5">
+      <div className="border-border flex h-14 items-center justify-between gap-2 border-b px-4">
         <div className="flex items-center gap-2 text-[13px] text-subtle">
           {view === "quote" ? (
             <>
@@ -827,7 +827,7 @@ export default function Quote() {
         </div>
         )}
 
-        <aside className="flex min-h-0 flex-col border-l border-line-strong bg-card/50">
+        <aside className="border-border flex min-h-0 flex-col border-l bg-card/50">
           <div className="min-h-0 flex-1 overflow-y-auto p-4">
             <div className="rounded-xl border border-primary/25 bg-primary/5 p-4">
               <span className="text-[11px] font-semibold tracking-wide text-subtle uppercase">Current quote</span>

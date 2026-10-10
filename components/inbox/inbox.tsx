@@ -80,7 +80,7 @@ export default function Inbox() {
 
       <div className="border-border flex w-72 shrink-0 flex-col border-r">
         <ScrollArea className="min-h-0 flex-1">
-          <div className="divide-border flex flex-col divide-y">
+          <div className="divide-border flex flex-col divide-y pt-2">
             {visible.map((thread) => (
               <button
                 key={thread.id}
@@ -139,7 +139,7 @@ export default function Inbox() {
       <div className="flex min-w-0 flex-1 flex-col">
         {selected ? (
           <>
-            <div className="border-border flex shrink-0 items-center gap-3 border-b px-4 py-3">
+            <div className="border-border flex h-14 shrink-0 items-center gap-3 border-b px-4">
               <div className="min-w-0 flex-1">
                 <h2 className="truncate">{selected.subject}</h2>
                 <p className="caption-style text-subtle mt-1 truncate">

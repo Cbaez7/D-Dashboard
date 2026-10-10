@@ -90,7 +90,7 @@ export default function Clients() {
 
   return (
     <section className="flex min-h-0 min-w-0 flex-1 flex-col">
-      <div className="border-border flex items-center justify-between gap-2 border-b px-4 py-2.5">
+      <div className="border-border flex h-14 items-center justify-between gap-2 border-b px-4">
         <Input
           placeholder="Search clients…"
           value={query}

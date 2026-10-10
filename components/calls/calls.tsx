@@ -27,7 +27,7 @@ export default function Calls() {
 
   return (
     <section className="flex min-h-0 min-w-0 flex-1 flex-col">
-      <div className="border-border flex shrink-0 items-center gap-3 border-b px-4 py-3">
+      <div className="border-border flex h-14 shrink-0 items-center gap-3 border-b px-4">
         <div className="min-w-0">
           <h2>Call control</h2>
           <p className="caption-style text-subtle mt-1">

@@ -91,7 +91,7 @@ function ChannelGroup({ title, kind }: { title: string; kind: ChatChannel["kind"
 
 function ChannelHeader({ channel }: { channel: ChatChannel }) {
   return (
-    <div className="border-border flex shrink-0 items-center gap-3 border-b px-4 py-3">
+    <div className="border-border flex h-14 shrink-0 items-center gap-3 border-b px-4">
       <div className="min-w-0">
         <h2 className="truncate">
           {channel.kind === "dm" ? channel.name : `#${channel.name}`}
