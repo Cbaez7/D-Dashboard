@@ -58,11 +58,13 @@ type ClientRow = {
   preferences: Record<string, unknown>;
   account_id: string | null;
   created_at: string;
-  accounts: { name: string } | { name: string }[] | null;
+  corporate_accounts: { name: string } | { name: string }[] | null;
 };
 
 function mapClient(row: ClientRow): Client {
-  const account = Array.isArray(row.accounts) ? row.accounts[0] : row.accounts;
+  const account = Array.isArray(row.corporate_accounts)
+    ? row.corporate_accounts[0]
+    : row.corporate_accounts;
   return {
     id: row.id,
     name: row.name,
@@ -80,7 +82,7 @@ function mapClient(row: ClientRow): Client {
 }
 
 const CLIENT_SELECT =
-  "id, name, email, phone, company, vip, tags, notes, preferences, account_id, created_at, accounts(name)";
+  "id, name, email, phone, company, vip, tags, notes, preferences, account_id, created_at, corporate_accounts(name)";
 
 export async function fetchClients(orgId: string): Promise<Client[]> {
   const supabase = createClient();
@@ -96,7 +98,7 @@ export async function fetchClients(orgId: string): Promise<Client[]> {
 export async function fetchAccounts(orgId: string): Promise<Account[]> {
   const supabase = createClient();
   const { data, error } = await supabase
-    .from("accounts")
+    .from("corporate_accounts")
     .select("id, name, notes, billing_email")
     .eq("org_id", orgId)
     .order("name", { ascending: true });
@@ -256,7 +258,7 @@ export async function upsertAccount(orgId: string, account: { id?: string; name:
     updated_at: new Date().toISOString(),
   };
   const { error } = account.id
-    ? await supabase.from("accounts").update(payload).eq("org_id", orgId).eq("id", account.id)
-    : await supabase.from("accounts").insert(payload);
+    ? await supabase.from("corporate_accounts").update(payload).eq("org_id", orgId).eq("id", account.id)
+    : await supabase.from("corporate_accounts").insert(payload);
   if (error) throw error;
 }

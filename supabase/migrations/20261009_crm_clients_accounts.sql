@@ -1,6 +1,6 @@
 begin;
 
-create table public.accounts (
+create table public.corporate_accounts (
   id uuid primary key default gen_random_uuid(),
   org_id uuid not null references public.orgs on delete cascade,
   name text not null,
@@ -14,7 +14,7 @@ create table public.accounts (
 create table public.clients (
   id uuid primary key default gen_random_uuid(),
   org_id uuid not null references public.orgs on delete cascade,
-  account_id uuid references public.accounts on delete set null,
+  account_id uuid references public.corporate_accounts on delete set null,
   name text not null,
   email text,
   phone text,
@@ -52,19 +52,19 @@ create table public.client_notes (
 
 create index client_notes_client_idx on public.client_notes (client_id, created_at);
 
-alter table public.accounts enable row level security;
+alter table public.corporate_accounts enable row level security;
 alter table public.clients enable row level security;
 alter table public.client_addresses enable row level security;
 alter table public.client_notes enable row level security;
 
-create policy accounts_select on public.accounts for select to authenticated
+create policy corporate_accounts_select on public.corporate_accounts for select to authenticated
   using (public.is_org_member(org_id));
-create policy accounts_admin_insert on public.accounts for insert to authenticated
+create policy corporate_accounts_admin_insert on public.corporate_accounts for insert to authenticated
   with check (public.is_org_admin(org_id));
-create policy accounts_admin_update on public.accounts for update to authenticated
+create policy corporate_accounts_admin_update on public.corporate_accounts for update to authenticated
   using (public.is_org_admin(org_id))
   with check (public.is_org_admin(org_id));
-create policy accounts_admin_delete on public.accounts for delete to authenticated
+create policy corporate_accounts_admin_delete on public.corporate_accounts for delete to authenticated
   using (public.is_org_admin(org_id));
 
 create policy clients_select on public.clients for select to authenticated
@@ -99,6 +99,6 @@ create policy client_notes_delete on public.client_notes for delete to authentic
 
 alter publication supabase_realtime add table public.clients;
 alter publication supabase_realtime add table public.client_notes;
-alter publication supabase_realtime add table public.accounts;
+alter publication supabase_realtime add table public.corporate_accounts;
 
 commit;

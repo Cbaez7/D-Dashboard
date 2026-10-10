@@ -222,7 +222,7 @@ const accountRows = Object.entries(accountsData).map(([name, notes]) => ({
   notes,
 }));
 const { error: accErr } = await admin
-  .from("accounts")
+  .from("corporate_accounts")
   .upsert(accountRows, { onConflict: "org_id,name" });
 if (accErr) throw accErr;
 console.log(`accounts: upserted ${accountRows.length}`);
@@ -264,7 +264,7 @@ const { data: elena } = await admin
 
 if (elena) {
   const veeam = await admin
-    .from("accounts")
+    .from("corporate_accounts")
     .select("id")
     .eq("org_id", orgId)
     .eq("name", "Veeam & NetJets")

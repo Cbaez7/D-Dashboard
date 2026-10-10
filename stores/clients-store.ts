@@ -67,7 +67,7 @@ export const useClientsStore = create<ClientsState>()((set, get) => ({
         )
         .on(
           "postgres_changes",
-          { event: "*", schema: "public", table: "accounts" },
+          { event: "*", schema: "public", table: "corporate_accounts" },
           () => void get().refresh(),
         )
         .subscribe();

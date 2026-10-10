@@ -1221,7 +1221,7 @@ create policy uploads_delete on storage.objects for delete to authenticated
 
 -- CRM
 
-create table if not exists accounts (
+create table if not exists corporate_accounts (
   id uuid primary key default gen_random_uuid(),
   org_id uuid not null references orgs on delete cascade,
   name text not null,
@@ -1235,7 +1235,7 @@ create table if not exists accounts (
 create table if not exists clients (
   id uuid primary key default gen_random_uuid(),
   org_id uuid not null references orgs on delete cascade,
-  account_id uuid references accounts on delete set null,
+  account_id uuid references corporate_accounts on delete set null,
   name text not null,
   email text,
   phone text,
@@ -1273,19 +1273,19 @@ create table if not exists client_notes (
 
 create index if not exists client_notes_client_idx on client_notes (client_id, created_at);
 
-alter table accounts enable row level security;
+alter table corporate_accounts enable row level security;
 alter table clients enable row level security;
 alter table client_addresses enable row level security;
 alter table client_notes enable row level security;
 
-create policy accounts_select on accounts for select to authenticated
+create policy corporate_accounts_select on corporate_accounts for select to authenticated
   using (public.is_org_member(org_id));
-create policy accounts_admin_insert on accounts for insert to authenticated
+create policy corporate_accounts_admin_insert on corporate_accounts for insert to authenticated
   with check (public.is_org_admin(org_id));
-create policy accounts_admin_update on accounts for update to authenticated
+create policy corporate_accounts_admin_update on corporate_accounts for update to authenticated
   using (public.is_org_admin(org_id))
   with check (public.is_org_admin(org_id));
-create policy accounts_admin_delete on accounts for delete to authenticated
+create policy corporate_accounts_admin_delete on corporate_accounts for delete to authenticated
   using (public.is_org_admin(org_id));
 
 create policy clients_select on clients for select to authenticated
@@ -1334,8 +1334,8 @@ begin
   end if;
   if not exists (
     select 1 from pg_publication_tables
-    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'accounts'
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'corporate_accounts'
   ) then
-    alter publication supabase_realtime add table accounts;
+    alter publication supabase_realtime add table corporate_accounts;
   end if;
 end $$;
