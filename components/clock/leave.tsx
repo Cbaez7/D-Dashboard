@@ -198,7 +198,7 @@ export default function Leave() {
                   </TableCell>
                   <TableCell className="text-soft">{request.days}</TableCell>
                   <TableCell className="text-soft max-w-48 truncate">
-                    {request.reason || "—"}
+                    {request.reason || "–"}
                   </TableCell>
                   <TableCell className="text-right">
                     <Tag tone={STATUS_TONE[request.status]} size="sm">

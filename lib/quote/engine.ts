@@ -79,7 +79,7 @@ export const money = (n: number) => "$" + Number(n).toFixed(2);
 
 export function cancellationFor(vehicle: Vehicle, client: ClientType): string {
   if (vehicle === "Sprinter Van") return client === "Walk-in" ? "72 hours" : "24 hours";
-  return client === "Walk-in" ? "24 hours" : P2P_RULES[vehicle]?.cancel ?? "—";
+  return client === "Walk-in" ? "24 hours" : P2P_RULES[vehicle]?.cancel ?? "–";
 }
 
 export function sprinterGreeterAuto(
@@ -186,7 +186,7 @@ export function computeQuote(input: QuoteInput): QuoteResult {
             `Minimum Price: ${money(minHours * hourly)}`,
             `Cancellation Policy: ${cancellation}`,
             h < minHours
-              ? `${h} hours is below the ${minHours}-hour minimum — Billable Hours Used = ${minHours}`
+              ? `${h} hours is below the ${minHours}-hour minimum – Billable Hours Used = ${minHours}`
               : `Billable Hours Used = ${h}`,
           ],
         });

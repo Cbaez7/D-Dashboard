@@ -106,8 +106,8 @@ function AttentionStrip() {
             <span
               className={
                 card.count > 0
-                  ? "text-[20px] leading-none font-medium text-foreground"
-                  : "text-[20px] leading-none font-medium text-faint"
+                  ? "text-[20px] leading-none font-medium font-mono text-foreground"
+                  : "text-[20px] leading-none font-medium font-mono text-faint"
               }
             >
               {card.count}
@@ -142,7 +142,7 @@ function MyTasks() {
       <div className="border-border bg-card overflow-hidden rounded-xl border">
         {mine.length === 0 ? (
           <p className="caption-style text-subtle px-4 py-10 text-center">
-            Nothing assigned — enjoy the quiet.
+            Nothing assigned – enjoy the quiet.
           </p>
         ) : (
           <Table>
@@ -180,7 +180,7 @@ function MyTasks() {
                           hour: "2-digit",
                           minute: "2-digit",
                         })
-                      : "—"}
+                      : "–"}
                   </TableCell>
                   <TableCell className="text-right">
                     <Select

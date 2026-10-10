@@ -22,7 +22,7 @@ const EMPTY_SESSION: SessionState = {
   userId: "",
   email: "",
   displayName: "Dispatcher",
-  initials: "—",
+  initials: "–",
   orgId: "",
   orgName: "",
   opsTz: "America/Los_Angeles",

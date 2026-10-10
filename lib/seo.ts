@@ -4,7 +4,7 @@ export const SITE_NAME = "BNG Desk";
 export const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://example.com";
 export const SITE_DESCRIPTION =
-  "The dispatch console — trips, map, mailbox, calls, chat, quoting and SOPs in one place.";
+  "The dispatch console – trips, map, mailbox, calls, chat, quoting and SOPs in one place.";
 export const DEFAULT_OG_IMAGE = "/opengraph-image.jpg";
 
 export function absoluteUrl(path: string) {

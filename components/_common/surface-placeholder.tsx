@@ -13,7 +13,7 @@ export default function SurfacePlaceholder({
 }: SurfacePlaceholderProps) {
   return (
     <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-2 p-6 text-center">
-      <span className="bg-muted flex size-12 items-center justify-center rounded-full shadow-[0px_0px_0px_1px_#232323]">
+      <span className="bg-muted flex size-12 items-center justify-center rounded-full shadow-[0px_0px_0px_1px_var(--ring-soft)]">
         <Icon aria-hidden className="text-soft size-5" />
       </span>
       <span className="lead-style mt-2 block font-medium">{title}</span>

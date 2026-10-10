@@ -36,23 +36,23 @@ export default function Timesheet() {
         <TableBody>
           {entries.map((entry) => (
             <TableRow key={entry.id}>
-              <TableCell>
+              <TableCell className="font-mono">
                 {new Date(`${entry.opsDate}T00:00:00Z`).toLocaleDateString(
                   "en-GB",
                   { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "UTC" },
                 )}
               </TableCell>
               <TableCell className="text-soft">{entry.shiftLabel}</TableCell>
-              <TableCell>
+              <TableCell className="font-mono">
                 {formatEntryRange(entry, entry.tz)}
-                <span className="text-subtle caption-style block mt-1">
+                <span className="text-subtle caption-style block mt-1 font-sans">
                   Location: {entry.location}
                 </span>
               </TableCell>
-              <TableCell className="text-soft">
+              <TableCell className="text-soft font-mono">
                 {formatEntryRange(entry, myTz)}
               </TableCell>
-              <TableCell className="text-soft">
+              <TableCell className="text-soft font-mono">
                 {formatDuration(entry.clockInAt, entry.clockOutAt)}
               </TableCell>
               <TableCell className="text-right">

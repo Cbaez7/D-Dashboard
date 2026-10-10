@@ -26,7 +26,7 @@ function Digit({ value, place }: { value: number; place: number }) {
   }, [animatedValue, valueRoundedToPlace]);
 
   return (
-    <div className="relative inline-block w-[0.92ch] overflow-x-visible overflow-y-clip leading-none tabular-nums">
+    <div className="relative inline-block w-[0.92ch] overflow-x-visible overflow-y-clip leading-none tabular-nums font-mono">
       <div className="invisible">0</div>
       {Array.from({ length: 10 }, (_, i) => (
         <Number key={i} mv={animatedValue} number={i} />

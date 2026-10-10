@@ -39,7 +39,7 @@ function mapMessage(row: MessageRow, names: Map<string, string>): ChatMessage {
 }
 
 const DEFAULT_CHANNELS = [
-  { name: "dispatch", topic: "Live operations — active trips and handoffs" },
+  { name: "dispatch", topic: "Live operations – active trips and handoffs" },
   { name: "ops", topic: "Fleet, schedules, and coverage" },
   { name: "general", topic: "Everything else" },
 ];

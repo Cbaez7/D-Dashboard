@@ -71,7 +71,7 @@ export const NOTIFICATIONS: Notification[] = [
     id: "n5",
     kind: "system",
     surface: "admin",
-    message: "LimoAnywhere sync completed — 34 trips mirrored",
+    message: "LimoAnywhere sync completed – 34 trips mirrored",
     time: "2h ago",
     unread: false,
   },

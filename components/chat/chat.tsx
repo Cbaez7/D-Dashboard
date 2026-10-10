@@ -33,7 +33,7 @@ export default function Chat() {
           </>
         ) : (
           <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-2 p-6 text-center">
-            <span className="bg-muted flex size-12 items-center justify-center rounded-full shadow-[0px_0px_0px_1px_#232323]">
+            <span className="bg-muted flex size-12 items-center justify-center rounded-full shadow-[0px_0px_0px_1px_var(--ring-soft)]">
               <ChatIcon aria-hidden className="text-soft size-5" />
             </span>
             <span className="lead-style mt-2 block font-medium">Chat</span>
@@ -152,7 +152,7 @@ function MessageList({ channelId }: { channelId: string }) {
         })}
         {channelMessages.length === 0 && (
           <p className="caption-style text-subtle py-10 text-center">
-            No messages yet — say hello.
+            No messages yet – say hello.
           </p>
         )}
         <div ref={endRef} />

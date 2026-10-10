@@ -31,7 +31,7 @@ function SelectTrigger({
       <SelectPrimitive.Icon asChild>
         <ChevronDownIcon
           aria-hidden
-          className="size-3 shrink-0 text-[#898b8d] transition-transform duration-200 ease-power3-out group-data-[state=open]:rotate-180"
+          className="size-3 shrink-0 text-subtle transition-transform duration-200 ease-power3-out group-data-[state=open]:rotate-180"
         />
       </SelectPrimitive.Icon>
     </SelectPrimitive.Trigger>

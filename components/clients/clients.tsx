@@ -131,15 +131,15 @@ export default function Clients() {
                       </span>
                     </TableCell>
                     <TableCell className="text-soft">
-                      {client.company || "—"}
+                      {client.company || "–"}
                     </TableCell>
                     <TableCell className="text-soft">
                       <span className="block max-w-52 truncate">
-                        {client.email || client.phone || "—"}
+                        {client.email || client.phone || "–"}
                       </span>
                     </TableCell>
                     <TableCell className="text-soft">
-                      {client.accountName || "—"}
+                      {client.accountName || "–"}
                     </TableCell>
                     <TableCell className="text-right">
                       <span className="inline-flex flex-wrap justify-end gap-1">
@@ -158,7 +158,7 @@ export default function Clients() {
                       {live
                         ? query
                           ? "No clients match that search."
-                          : "No clients yet — add the first one."
+                          : "No clients yet – add the first one."
                         : "The directory needs a database connection."}
                     </TableCell>
                   </TableRow>
@@ -266,7 +266,7 @@ function ClientDetailSheet() {
                       <span className="font-medium text-foreground">
                         {address.label}
                       </span>
-                      <span className="text-soft"> — {address.address}</span>
+                      <span className="text-soft"> – {address.address}</span>
                     </div>
                   ))}
                 </div>
@@ -289,7 +289,7 @@ function ClientDetailSheet() {
                         key={item.id}
                         className="flex gap-2.5 rounded-lg border border-line-strong bg-secondary p-3"
                       >
-                        <span className="bg-muted mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-lg shadow-[0px_0px_0px_1px_#232323]">
+                        <span className="bg-muted mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-lg shadow-[0px_0px_0px_1px_var(--ring-soft)]">
                           {item.kind === "quote" ? (
                             <QuoteIcon aria-hidden className="text-soft size-3.5" />
                           ) : (
@@ -302,7 +302,7 @@ function ClientDetailSheet() {
                               {item.title}
                             </span>
                             {item.meta && (
-                              <span className="text-[12px] font-medium text-success tabular-nums">
+                              <span className="text-[12px] font-medium text-success tabular-nums font-mono">
                                 {item.meta}
                               </span>
                             )}
@@ -320,7 +320,7 @@ function ClientDetailSheet() {
                     ))}
                   {!detailLoading && timeline.length === 0 && (
                     <span className="caption-style text-subtle">
-                      Nothing yet — add the first note below.
+                      Nothing yet – add the first note below.
                     </span>
                   )}
                 </div>
@@ -337,7 +337,7 @@ function ClientDetailSheet() {
                     />
                     {noteError && (
                       <p className="caption-style text-danger">
-                        Could not save the note — try again.
+                        Could not save the note – try again.
                       </p>
                     )}
                     <Button
@@ -390,7 +390,7 @@ function ClientDialog({ mode, client }: { mode: "create" | "edit"; client?: Clie
       if (mode === "create") {
         const created = await addClient(fields);
         if (!created) {
-          setError("Could not create the client — try again.");
+          setError("Could not create the client – try again.");
           return;
         }
         setOpen(false);
@@ -398,7 +398,7 @@ function ClientDialog({ mode, client }: { mode: "create" | "edit"; client?: Clie
       } else if (client) {
         const ok = await saveClient(client.id, fields);
         if (!ok) {
-          setError("Could not save changes — try again.");
+          setError("Could not save changes – try again.");
           return;
         }
         setOpen(false);
@@ -499,7 +499,7 @@ function ClientDialog({ mode, client }: { mode: "create" | "edit"; client?: Clie
               id="client-tags"
               name="tags"
               defaultValue={client?.tags.join(", ")}
-              placeholder="frequent, affiliate — comma separated"
+              placeholder="frequent, affiliate – comma separated"
             />
           </div>
           <div className="flex flex-col gap-1.5">
@@ -513,7 +513,7 @@ function ClientDialog({ mode, client }: { mode: "create" | "edit"; client?: Clie
           </div>
           <label className="flex items-center gap-2 text-[13px] text-soft">
             <Checkbox name="vip" defaultChecked={client?.vip} />
-            VIP — flagged for priority handling
+            VIP – flagged for priority handling
           </label>
           {error && <p className="caption-style text-danger">{error}</p>}
           <DialogFooter className="-mx-6 -mb-5">

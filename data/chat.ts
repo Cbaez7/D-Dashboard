@@ -26,7 +26,7 @@ export const CHANNELS: ChatChannel[] = [
     id: "ch-dispatch",
     kind: "channel",
     name: "dispatch",
-    topic: "Live operations — active trips and handoffs",
+    topic: "Live operations – active trips and handoffs",
   },
   {
     id: "ch-ops",
@@ -47,7 +47,7 @@ export const CHANNELS: ChatChannel[] = [
     kind: "trip",
     name: "LAX → Beverly Hills",
     tripRef: "#4471",
-    topic: "Tonight 22:00 pickup — N. Ellison +1",
+    topic: "Tonight 22:00 pickup – N. Ellison +1",
   },
 ];
 
@@ -56,7 +56,7 @@ export const MESSAGES: ChatMessage[] = [
     id: "m1",
     channelId: "ch-dispatch",
     author: "Maria Santos",
-    body: "Heads up — 4471 passenger asked to move pickup to 22:15, updating LA now.",
+    body: "Heads up – 4471 passenger asked to move pickup to 22:15, updating LA now.",
     createdAt: "2026-10-08T13:02:00Z",
   },
   {
@@ -70,7 +70,7 @@ export const MESSAGES: ChatMessage[] = [
     id: "m3",
     channelId: "ch-dispatch",
     author: "Chris",
-    body: "Copy. Flagging VIP note on the Ellison account — quiet ride preference.",
+    body: "Copy. Flagging VIP note on the Ellison account – quiet ride preference.",
     createdAt: "2026-10-08T13:06:00Z",
   },
   {

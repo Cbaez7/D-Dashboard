@@ -59,7 +59,7 @@ export default function FilterMenu({
             {current?.label ?? value}
             <ChevronDownIcon
               aria-hidden
-              className="size-3 text-[#898b8d] transition-transform duration-200 ease-power3-out group-data-[state=open]:rotate-180"
+              className="size-3 text-subtle transition-transform duration-200 ease-power3-out group-data-[state=open]:rotate-180"
             />
           </span>
         </Button>

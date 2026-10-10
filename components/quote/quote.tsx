@@ -79,7 +79,7 @@ const CLIENT_TYPES: { value: ClientType; hint: string }[] = [
 
 const SERVICE_TYPES: { value: ServiceType; label: string; hint: string }[] = [
   { value: "Airport", label: "Airport Transfer", hint: "Direct service to or from an airport" },
-  { value: "P2P", label: "Point-to-Point", hint: "Two cities — auto billable minimum" },
+  { value: "P2P", label: "Point-to-Point", hint: "Two cities – auto billable minimum" },
   { value: "Hourly", label: "Hourly / As-Directed", hint: "Multi-stop or booked hours" },
 ];
 
@@ -443,7 +443,7 @@ export default function Quote() {
                         onChange={(e) => setCorporate((c) => ({ ...c, hours: Number(e.target.value) || 0 }))}
                       />
                     </Field>
-                    <Field label="Percentage (%)" htmlFor="q-cpct" hint="Check account notes — default may be 30%">
+                    <Field label="Percentage (%)" htmlFor="q-cpct" hint="Check account notes – default may be 30%">
                       <Input
                         id="q-cpct"
                         type="number"
@@ -598,11 +598,11 @@ export default function Quote() {
                   <div className="mt-3 grid grid-cols-3 gap-2 rounded-lg border border-line-strong bg-secondary p-3 text-[12px]">
                     <div>
                       <span className="block text-subtle">Pickup minimum</span>
-                      <b className="text-soft">{pickupCity} — {PTP_CITY_MINIMUMS[pickupCity]}h</b>
+                      <b className="text-soft">{pickupCity} – {PTP_CITY_MINIMUMS[pickupCity]}h</b>
                     </div>
                     <div>
                       <span className="block text-subtle">Drop-off minimum</span>
-                      <b className="text-soft">{dropoffCity} — {PTP_CITY_MINIMUMS[dropoffCity]}h</b>
+                      <b className="text-soft">{dropoffCity} – {PTP_CITY_MINIMUMS[dropoffCity]}h</b>
                     </div>
                     <div>
                       <span className="block text-subtle">Billable hours</span>
@@ -707,7 +707,7 @@ export default function Quote() {
                 <Field
                   label={serviceType === "Hourly" ? "Booked service hours" : "Calculated drive time (hours)"}
                   htmlFor="q-hours"
-                  hint={minHours ? `Minimum booking: ${minHours}h — ${vehicle} • cancel ${cancellationFor(vehicle, clientType as ClientType)}` : undefined}
+                  hint={minHours ? `Minimum booking: ${minHours}h – ${vehicle} • cancel ${cancellationFor(vehicle, clientType as ClientType)}` : undefined}
                 >
                   <Input
                     id="q-hours"
@@ -720,7 +720,7 @@ export default function Quote() {
                 </Field>
                 {result.minimumApplied && (
                   <p className="mt-2 rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-[12px] text-warning">
-                    {result.minimumApplied.entered}h entered is below the {result.minimumApplied.used}h minimum — pricing uses {result.minimumApplied.used}h.
+                    {result.minimumApplied.entered}h entered is below the {result.minimumApplied.used}h minimum – pricing uses {result.minimumApplied.used}h.
                   </p>
                 )}
               </Section>
@@ -831,7 +831,7 @@ export default function Quote() {
           <div className="min-h-0 flex-1 overflow-y-auto p-4">
             <div className="rounded-xl border border-primary/25 bg-primary/5 p-4">
               <span className="text-[11px] font-semibold tracking-wide text-subtle uppercase">Current quote</span>
-              <div className="mt-1 text-[28px] font-semibold text-foreground tabular-nums">
+              <div className="mt-1 text-[28px] font-semibold text-foreground tabular-nums font-mono">
                 {result.ready ? money(result.total) : "$0.00"}
               </div>
               {result.baseNote && <p className="mt-1 text-[12px] text-subtle">{result.baseNote}</p>}
@@ -841,25 +841,25 @@ export default function Quote() {
               <div className="mt-3 rounded-xl border border-line-strong bg-card p-3">
                 <div className="flex justify-between text-[13px]">
                   <span className="text-subtle">Base rate</span>
-                  <b className="text-foreground tabular-nums">{money(result.base)}</b>
+                  <b className="text-foreground tabular-nums font-mono">{money(result.base)}</b>
                 </div>
                 {result.feeLines.map((l) => (
                   <div key={l.label} className="mt-1.5 flex justify-between text-[13px]">
                     <span className="text-subtle">{l.label}</span>
-                    <span className="text-soft tabular-nums">{money(l.amount)}</span>
+                    <span className="text-soft tabular-nums font-mono">{money(l.amount)}</span>
                   </div>
                 ))}
                 {corporate.account && (
                   <div className="mt-1.5 flex justify-between text-[13px]">
                     <span className="text-subtle">Corporate base</span>
-                    <span className="text-soft tabular-nums">
+                    <span className="text-soft tabular-nums font-mono">
                       {money(corporate.rate * corporate.hours + corporate.rate * corporate.hours * (corporate.percent / 100) + corporate.customFee)}
                     </span>
                   </div>
                 )}
                 <div className="mt-2 flex justify-between border-t border-line-strong pt-2 text-[13px]">
                   <span className="font-medium text-foreground">Total</span>
-                  <b className="text-success tabular-nums">{money(result.total)}</b>
+                  <b className="text-success tabular-nums font-mono">{money(result.total)}</b>
                 </div>
               </div>
             )}
@@ -870,7 +870,7 @@ export default function Quote() {
                 {result.steps.map((s, i) => (
                   <div key={i} className="mb-2.5 last:mb-0">
                     <p className="text-[11px] font-semibold text-primary">
-                      Step {i + 1} — {s.title}
+                      Step {i + 1} – {s.title}
                     </p>
                     {s.lines.map((l, j) => (
                       <p key={j} className="mt-0.5 pl-2 font-mono text-[11px] text-subtle">
@@ -961,7 +961,7 @@ function SaveQuoteDialog({
     startTransition(async () => {
       const ok = await save(input, result, route, customer);
       if (!ok) {
-        setError("Could not save the quote — check the connection and retry.");
+        setError("Could not save the quote – check the connection and retry.");
         return;
       }
       onOpenChange(false);
@@ -975,7 +975,7 @@ function SaveQuoteDialog({
         <DialogHeader>
           <DialogTitle>Save quote</DialogTitle>
           <DialogDescription>
-            Saved to quote history — drafts can be copied, marked sent, or
+            Saved to quote history – drafts can be copied, marked sent, or
             reloaded later.
           </DialogDescription>
         </DialogHeader>
@@ -996,7 +996,7 @@ function SaveQuoteDialog({
           </div>
           <div className="flex items-center justify-between rounded-lg border border-line-strong bg-secondary px-3 py-2 text-[13px]">
             <span className="text-subtle">Total</span>
-            <b className="text-foreground tabular-nums">{money(result.total)}</b>
+            <b className="text-foreground tabular-nums font-mono">{money(result.total)}</b>
           </div>
           {error && <p className="caption-style text-danger">{error}</p>}
           <DialogFooter className="-mx-6 -mb-5">
@@ -1061,12 +1061,12 @@ function QuoteHistory({ onLoad }: { onLoad: (quote: SavedQuote) => void }) {
                   )}
                 </TableCell>
                 <TableCell className="text-soft">
-                  {quote.customerName || "—"}
+                  {quote.customerName || "–"}
                 </TableCell>
-                <TableCell className="text-right font-medium tabular-nums">
+                <TableCell className="text-right font-medium tabular-nums font-mono">
                   {quote.totalCents != null
                     ? money(quote.totalCents / 100)
-                    : "—"}
+                    : "–"}
                 </TableCell>
                 <TableCell className="text-right">
                   {live ? (
@@ -1122,7 +1122,7 @@ function QuoteHistory({ onLoad }: { onLoad: (quote: SavedQuote) => void }) {
               <TableRow>
                 <TableCell colSpan={6} className="text-subtle">
                   {live
-                    ? "No saved quotes yet — build a quote and hit Save."
+                    ? "No saved quotes yet – build a quote and hit Save."
                     : "Quote history needs a database connection."}
                 </TableCell>
               </TableRow>
@@ -1131,7 +1131,7 @@ function QuoteHistory({ onLoad }: { onLoad: (quote: SavedQuote) => void }) {
         </Table>
       </div>
       <p className="caption-style text-subtle">
-        Quotes are internal estimates — sending does not create a LimoAnywhere
+        Quotes are internal estimates – sending does not create a LimoAnywhere
         reservation.
       </p>
     </div>

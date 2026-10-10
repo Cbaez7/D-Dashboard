@@ -44,7 +44,7 @@ const INTEGRATIONS = [
   {
     key: "limoanywhere",
     name: "LimoAnywhere",
-    note: "Read-only mirror — trips, drivers, invoices",
+    note: "Read-only mirror – trips, drivers, invoices",
     fallback: "Awaiting API access",
   },
   {
@@ -200,7 +200,7 @@ function Accounts() {
                 {account.billingEmail
                   ? `Billing: ${account.billingEmail}`
                   : "No billing email"}
-                {account.notes ? ` — ${account.notes}` : ""}
+                {account.notes ? ` – ${account.notes}` : ""}
               </p>
             </div>
             <AccountDialog mode="edit" account={account} />
@@ -209,13 +209,13 @@ function Accounts() {
         {accounts.length === 0 && (
           <p className="caption-style text-subtle px-4 py-3">
             {live
-              ? "No accounts yet — the quoter still uses the built-in rate cards."
+              ? "No accounts yet – the quoter still uses the built-in rate cards."
               : "Accounts need a database connection."}
           </p>
         )}
       </div>
       <p className="caption-style text-subtle">
-        Rate-card notes are what dispatchers read in the quoter — edits apply
+        Rate-card notes are what dispatchers read in the quoter – edits apply
         everywhere the account appears.
       </p>
     </div>
@@ -245,7 +245,7 @@ function AccountDialog({
     startTransition(async () => {
       const ok = await saveAccount(fields);
       if (!ok) {
-        setError("Could not save the account — try again.");
+        setError("Could not save the account – try again.");
         return;
       }
       setOpen(false);
@@ -305,7 +305,7 @@ function AccountDialog({
               name="notes"
               rows={5}
               defaultValue={account?.notes}
-              placeholder="Airport rules, minimums, who to bill — what a dispatcher needs to quote this account."
+              placeholder="Airport rules, minimums, who to bill – what a dispatcher needs to quote this account."
               className="border-line-strong bg-secondary placeholder:text-subtle focus-visible:border-ring text-foreground ease-power3-out w-full min-w-0 rounded-lg border px-3 py-2 text-[14px] leading-normal outline-none transition-[border-color] duration-150"
             />
           </div>
@@ -432,7 +432,7 @@ function Integrations() {
         })}
       </div>
       <p className="caption-style text-subtle">
-        Credentials land in <code>.env.local</code> — sync state lives in{" "}
+        Credentials land in <code>.env.local</code> – sync state lives in{" "}
         <code>integration_state</code> per org.
       </p>
     </div>

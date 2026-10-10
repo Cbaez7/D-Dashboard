@@ -74,7 +74,7 @@ export default function Inbox() {
           </button>
         ))}
         <p className="caption-style text-subtle mt-auto px-2 pt-4 pb-2">
-          Shared mailbox via Microsoft 365 — sync pending credentials.
+          Shared mailbox via Microsoft 365 – sync pending credentials.
         </p>
       </aside>
 
@@ -187,7 +187,7 @@ export default function Inbox() {
           </>
         ) : (
           <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-2 p-6 text-center">
-            <span className="bg-muted flex size-12 items-center justify-center rounded-full shadow-[0px_0px_0px_1px_#232323]">
+            <span className="bg-muted flex size-12 items-center justify-center rounded-full shadow-[0px_0px_0px_1px_var(--ring-soft)]">
               <InboxIcon aria-hidden className="text-soft size-5" />
             </span>
             <span className="lead-style mt-2 block font-medium">Inbox</span>

@@ -31,7 +31,7 @@ export default function Calls() {
         <div className="min-w-0">
           <h2>Call control</h2>
           <p className="caption-style text-subtle mt-1">
-            3CX control-only — audio stays on your desk phone or web client.
+            3CX control-only – audio stays on your desk phone or web client.
           </p>
         </div>
         <div className="ml-auto flex shrink-0 items-center gap-2">
@@ -86,7 +86,7 @@ export default function Calls() {
                             {call.linkedTrip}
                           </Tag>
                         ) : (
-                          <span className="text-subtle">—</span>
+                          <span className="text-subtle">–</span>
                         )}
                       </TableCell>
                       <TableCell className="text-right">
@@ -145,7 +145,7 @@ function IncomingCallPop({ onClose }: { onClose: () => void }) {
         </Button>
       </div>
       <p className="caption-style text-subtle mt-2.5 text-center">
-        Answering picks up on your 3CX endpoint — no browser audio yet.
+        Answering picks up on your 3CX endpoint – no browser audio yet.
       </p>
     </div>
   );

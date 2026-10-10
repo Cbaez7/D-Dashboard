@@ -46,7 +46,7 @@ export const SOP_PAGES: SopPage[] = [
       "• Verify the assigned driver is staged",
       "• Text the passenger the driver's name, vehicle, and mobile number",
       "",
-      "After landing, drivers wait at the designated livery stand — not curbside. For international arrivals, build in 45–60 minutes of customs buffer before flagging a no-show.",
+      "After landing, drivers wait at the designated livery stand – not curbside. For international arrivals, build in 45–60 minutes of customs buffer before flagging a no-show.",
       "",
       "No-show protocol: attempt the passenger twice, then the booking contact, then escalate to the shift lead before releasing the driver.",
     ].join("\n"),
@@ -102,7 +102,7 @@ export const SOP_PAGES: SopPage[] = [
       "• 15-minute early driver arrival standard",
       "• Notify the account owner in chat of any disruption immediately",
       "",
-      "Check customer notes on every interaction — preferences (temperature, route, silence) are recorded there.",
+      "Check customer notes on every interaction – preferences (temperature, route, silence) are recorded there.",
     ].join("\n"),
   },
 ];

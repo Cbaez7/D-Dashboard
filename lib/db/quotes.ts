@@ -126,7 +126,7 @@ export async function insertQuote(entry: SaveQuoteInput) {
     customer_phone: entry.customerPhone || null,
     trip_type:
       entry.input.clientType === "Corporate"
-        ? `Corporate — ${entry.input.corporate.account}`
+        ? `Corporate – ${entry.input.corporate.account}`
         : entry.input.serviceType || null,
     vehicle: entry.input.vehicle || null,
     pickup,

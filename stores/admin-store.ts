@@ -34,7 +34,7 @@ const MOCK_ACTIVITY: AuditEvent[] = [
   {
     id: 2,
     actor: "Devon Cole",
-    action: "Completed task #1038 — Stage vehicle 12",
+    action: "Completed task #1038 – Stage vehicle 12",
     entity: "task",
     entityId: null,
     createdAt: "2026-10-08T11:40:00Z",

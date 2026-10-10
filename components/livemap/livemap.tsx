@@ -13,7 +13,7 @@ type MapPin = {
 };
 
 const PINS: MapPin[] = [
-  { id: "d1", label: "Devon Cole", kind: "driver", status: "Staged — LAX-it", x: 22, y: 72 },
+  { id: "d1", label: "Devon Cole", kind: "driver", status: "Staged – LAX-it", x: 22, y: 72 },
   { id: "d2", label: "Vehicle 08", kind: "driver", status: "En route", x: 58, y: 44 },
   { id: "p1", label: "Pickup #4471", kind: "pickup", status: "LAX · 22:15", x: 24, y: 70 },
   { id: "r1", label: "Dropoff #4471", kind: "dropoff", status: "Beverly Hills", x: 46, y: 30 },
@@ -34,7 +34,7 @@ export default function LiveMap() {
         className="absolute inset-0"
         style={{
           backgroundImage:
-            "linear-gradient(#232323 1px, transparent 1px), linear-gradient(90deg, #232323 1px, transparent 1px)",
+            "linear-gradient(var(--map-grid) 1px, transparent 1px), linear-gradient(90deg, var(--map-grid) 1px, transparent 1px)",
           backgroundSize: "48px 48px",
           opacity: 0.35,
         }}
@@ -44,7 +44,7 @@ export default function LiveMap() {
         className="absolute inset-0"
         style={{
           backgroundImage:
-            "linear-gradient(#2a2a2a 2px, transparent 2px), linear-gradient(90deg, #2a2a2a 2px, transparent 2px)",
+            "linear-gradient(var(--map-grid-strong) 2px, transparent 2px), linear-gradient(90deg, var(--map-grid-strong) 2px, transparent 2px)",
           backgroundSize: "240px 240px",
           opacity: 0.4,
         }}
@@ -59,7 +59,7 @@ export default function LiveMap() {
         <path
           d="M 24 70 C 32 62, 40 42, 46 30"
           fill="none"
-          stroke="#c9a968"
+          stroke="var(--map-route)"
           strokeWidth="0.4"
           strokeDasharray="1.5 1.5"
           opacity="0.7"
@@ -67,7 +67,7 @@ export default function LiveMap() {
         <path
           d="M 22 72 C 30 60, 44 50, 58 44"
           fill="none"
-          stroke="#16c89e"
+          stroke="var(--map-status)"
           strokeWidth="0.35"
           opacity="0.5"
         />
@@ -75,7 +75,7 @@ export default function LiveMap() {
 
       <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
         <div className="border-border bg-popover/90 rounded-xl border p-3 shadow-overlay backdrop-blur-sm">
-          <p className="caption-style text-subtle mb-2">Fleet — live</p>
+          <p className="caption-style text-subtle mb-2">Fleet – live</p>
           <div className="flex flex-col gap-1.5">
             <LegendDot className="bg-status" label="2 drivers on trips" />
             <LegendDot className="bg-primary" label="1 pickup pending" />
@@ -86,7 +86,7 @@ export default function LiveMap() {
 
       <div className="absolute top-4 right-4 z-10">
         <Tag tone="neutral" size="md">
-          Generic map — provider TBD
+          Generic map – provider TBD
         </Tag>
       </div>
 
