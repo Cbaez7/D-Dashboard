@@ -7,13 +7,18 @@ import { SURFACE_GROUPS, surfaceById } from "./nav";
 import { useAppStore } from "@/stores/app-store";
 import { useChatStore } from "@/stores/chat-store";
 import { useSessionStore } from "@/stores/session-store";
-import Logo from "@/public/assets/images/_common/logo.svg";
+import Image from "next/image";
 import UserPlusIcon from "@/public/assets/images/_common/user-plus.svg";
 import HelpIcon from "@/public/assets/images/_common/help.svg";
+import PanelLeftIcon from "@/public/assets/images/_common/panel-left.svg";
 
 export default function SidebarContent() {
   const activeSurface = useAppStore((state) => state.activeSurface);
   const setActiveSurface = useAppStore((state) => state.setActiveSurface);
+  const setSidebarOpen = useAppStore((state) => state.setSidebarOpen);
+  const setSidebarCollapsed = useAppStore(
+    (state) => state.setSidebarCollapsed,
+  );
   const role = useAppStore((state) => state.role);
   const unreadCounts = useAppStore((state) => state.unreadCounts);
   const messages = useChatStore((state) => state.messages);
@@ -35,7 +40,13 @@ export default function SidebarContent() {
   return (
     <div className="flex h-full min-h-0 flex-col">
       <div className="border-sidebar-border bg-sidebar-accent flex shrink-0 items-center gap-2 border-b p-3">
-        <Logo aria-hidden className="size-8 shrink-0 overflow-visible" />
+        <Image
+          src="/assets/images/_common/logo.png"
+          alt=""
+          width={117}
+          height={114}
+          className="size-8 shrink-0 rounded-full object-cover"
+        />
         <div className="flex min-w-0 flex-col gap-1">
           <span className="lead-style block truncate font-medium tracking-[-0.01em]">
             BNG Desk
@@ -44,6 +55,18 @@ export default function SidebarContent() {
             Dispatch console
           </span>
         </div>
+        <button
+          type="button"
+          aria-label="Collapse sidebar"
+          title="Collapse sidebar"
+          onClick={() => {
+            setSidebarOpen(false);
+            setSidebarCollapsed(true);
+          }}
+          className="text-subtle hover:bg-muted hover:text-foreground ml-auto flex size-7 shrink-0 items-center justify-center rounded-md transition-colors duration-150 ease-power3-out"
+        >
+          <PanelLeftIcon aria-hidden className="size-3.5" />
+        </button>
       </div>
 
       <ScrollArea className="min-h-0 flex-1">

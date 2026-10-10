@@ -18,6 +18,7 @@ export type Role = "admin" | "dispatcher";
 type AppState = {
   activeSurface: SurfaceId;
   sidebarOpen: boolean;
+  sidebarCollapsed: boolean;
   commandOpen: boolean;
   profileOpen: boolean;
   role: Role;
@@ -25,6 +26,7 @@ type AppState = {
   unreadCounts: Partial<Record<SurfaceId, number>>;
   setActiveSurface: (surface: SurfaceId) => void;
   setSidebarOpen: (open: boolean) => void;
+  setSidebarCollapsed: (collapsed: boolean) => void;
   setCommandOpen: (open: boolean) => void;
   setProfileOpen: (open: boolean) => void;
   setRole: (role: Role) => void;
@@ -35,6 +37,7 @@ type AppState = {
 export const useAppStore = create<AppState>((set) => ({
   activeSurface: "dispatch",
   sidebarOpen: false,
+  sidebarCollapsed: false,
   commandOpen: false,
   profileOpen: false,
   role: "admin",
@@ -45,6 +48,7 @@ export const useAppStore = create<AppState>((set) => ({
   unreadCounts: {},
   setActiveSurface: (activeSurface) => set({ activeSurface }),
   setSidebarOpen: (sidebarOpen) => set({ sidebarOpen }),
+  setSidebarCollapsed: (sidebarCollapsed) => set({ sidebarCollapsed }),
   setCommandOpen: (commandOpen) => set({ commandOpen }),
   setProfileOpen: (profileOpen) => set({ profileOpen }),
   setRole: (role) => set({ role }),

@@ -6,20 +6,28 @@ import {
   SheetDescription,
   SheetTitle,
 } from "@/components/_ui/sheet";
+import SidebarCollapsed from "./sidebar-collapsed";
 import SidebarContent from "./sidebar-content";
 import SidebarResizer from "./sidebar-resizer";
 import { useAppStore } from "@/stores/app-store";
 
 export default function Sidebar() {
   const sidebarOpen = useAppStore((state) => state.sidebarOpen);
+  const sidebarCollapsed = useAppStore((state) => state.sidebarCollapsed);
   const setSidebarOpen = useAppStore((state) => state.setSidebarOpen);
 
   return (
     <>
-      <aside className="relative hidden w-(--sidebar-width) shrink-0 border-r border-sidebar-border bg-sidebar lg:flex lg:flex-col">
-        <SidebarContent />
-        <SidebarResizer />
-      </aside>
+      {sidebarCollapsed ? (
+        <aside className="hidden w-12 shrink-0 flex-col border-r border-sidebar-border bg-sidebar lg:flex">
+          <SidebarCollapsed />
+        </aside>
+      ) : (
+        <aside className="relative hidden w-(--sidebar-width) shrink-0 border-r border-sidebar-border bg-sidebar lg:flex lg:flex-col">
+          <SidebarContent />
+          <SidebarResizer />
+        </aside>
+      )}
 
       <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
         <SheetContent
