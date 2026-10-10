@@ -2,7 +2,7 @@ import Button from "@/components/_ui/button";
 import { Input } from "@/components/_ui/input";
 import { Label } from "@/components/_ui/label";
 import { signIn } from "./actions";
-import Image from "next/image";
+import Logo from "@/public/assets/images/_common/logo.svg";
 
 export default function LoginPage({
   searchParams,
@@ -13,14 +13,7 @@ export default function LoginPage({
     <main className="flex min-h-dvh items-center justify-center p-4">
       <div className="bg-card border-line-strong w-full max-w-sm rounded-2xl border p-8 shadow-overlay">
         <div className="mb-8 flex flex-col items-center gap-3 text-center">
-          <Image
-            src="/assets/images/_common/logo.png"
-            alt=""
-            width={117}
-            height={114}
-            className="size-10 rounded-full object-cover"
-            priority
-          />
+          <Logo aria-hidden className="size-10 overflow-visible" />
           <h1 className="text-[20px] font-semibold">BNG Desk</h1>
           <p className="caption-style text-subtle">
             Sign in to the dispatch console
